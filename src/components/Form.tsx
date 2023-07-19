@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { nanoid } from "nanoid";
 
-function Form(props: any) {
-  const [disableForm, setDisableForm] = useState(false);
+export default function Form(props: any) {
   const [input, setInput] = useState({
     name: "",
     deadline: new Date().toISOString().substring(0, 10),
@@ -12,18 +12,18 @@ function Form(props: any) {
 
   function handleSubmit(e) {
     if (!input.name) {
-      alert("Please enter a task input.name");
+      alert("Please enter a task name");
       return;
     }
     e.preventDefault();
-    props.addTask(
+    addTask(
       input.name,
       input.deadline,
       input.priority,
       input.subtasks,
       input.notes
     );
-    props.setForm(false);
+    props.setFormVis(false);
     setInput({
       ...input,
       [e.target.id]: "",
@@ -35,10 +35,6 @@ function Form(props: any) {
       ...input,
       [e.target.id]: e.target.value,
     });
-  }
-
-  function handleCancel() {
-    props.setForm(false);
   }
 
   function addTask(
@@ -57,23 +53,54 @@ function Form(props: any) {
       subtasks,
       notes,
     };
-    setTasks([...tasks, newTask]);
+    props.setTasks([...props.tasks, newTask]);
   }
 
   function deleteTask(id: string) {
-    const remainingTasks = tasks.filter((task) => id !== task.id);
-    setTasks(remainingTasks);
+    const remainingTasks = props.tasks.filter((task) => id !== task.id);
+    props.setTasks(remainingTasks);
   }
 
   function editTask(id: string, newName: string) {
-    const editedTaskList = tasks.map((task) => {
+    const editedTaskList = props.tasks.map((task) => {
       if (id === task.id) {
         return { ...task, name: newName };
       }
       return task;
     });
-    setTasks(editedTaskList);
+    props.setTasks(editedTaskList);
   }
+
+  const viewTemplate = (
+    <div className="btn-group">
+      <button type="button" className="btn" onClick={() => props.setEditing(true)}>
+        Edit
+        <span className="visually-hidden">{props.name}</span>
+      </button>
+      <button
+        type="button"
+        className="btn btn__danger"
+        onClick={() => deleteTask(props.id)}
+      >
+        Delete <span className="visually-hidden">{props.name}</span>
+      </button>
+    </div>
+  );
+
+  const editTemplate = (
+    <div className="btn-group">
+        <button
+          type="button"
+          className="btn btn__danger"
+          onClick={() => props.setFormVis(false)}
+        >
+          Cancel
+        </button>
+        <button type="submit" className="btn btn__add">
+          Add
+        </button>
+      </div>
+  );
 
   return (
     <form onSubmit={handleSubmit}>
@@ -83,7 +110,7 @@ function Form(props: any) {
         className="input input__lg"
         autoComplete="off"
         placeholder="Type your task title here"
-        disabled={disableForm}
+        disabled={!props.isEditing}
         value={input.name}
         onChange={handleChange}
       />
@@ -94,7 +121,7 @@ function Form(props: any) {
             type="date"
             id="deadline"
             className="input input__lg"
-            disabled={disableForm}
+            disabled={!props.isEditing}
             value={input.deadline}
             onChange={handleChange}
           />
@@ -105,7 +132,7 @@ function Form(props: any) {
             name="priority"
             id="priority"
             className="input input__lg"
-            disabled={disableForm}
+            disabled={!props.isEditing}
             value={input.priority}
             onChange={handleChange}
           >
@@ -126,27 +153,14 @@ function Form(props: any) {
             id="notes"
             className="input input__lg"
             autoComplete="off"
-            disabled={disableForm}
+            disabled={!props.isEditing}
             placeholder="Type your notes here"
             value={input.notes}
             onChange={handleChange}
           />
         </label>
       </div>
-      <div className="btn-group">
-        <button
-          type="button"
-          className="btn btn__danger"
-          onClick={handleCancel}
-        >
-          Cancel
-        </button>
-        <button type="submit" className="btn btn__add">
-          Add
-        </button>
-      </div>
+      {props.isEditing ? editTemplate : viewTemplate}
     </form>
   );
 }
-
-export default Form;

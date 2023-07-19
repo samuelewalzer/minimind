@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 export default function TaskItem(props) {
-  const [isEditing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
 
   function handleChange(e) {
@@ -16,37 +15,13 @@ export default function TaskItem(props) {
     e.preventDefault();
     props.editTask(props.id, newName);
     setNewName("");
-    setEditing(false);
+    props.setEditing(false);
   }
 
-//   const editingTemplate = (
-//     <form className="stack-small" onSubmit={handleSubmit}>
-//       <div className="form-group">
-//         <input
-//           id={props.id}
-//           className="todo-text"
-//           type="text"
-//           value={newName}
-//           onChange={handleChange}
-//           placeholder={`New name for ${props.name}`}
-//         />
-//       </div>
-//       <div className="btn-group">
-//         <button
-//           type="button"
-//           className="btn todo-cancel"
-//           onClick={() => setEditing(false)}
-//         >
-//           Cancel
-//           <span className="visually-hidden">renaming {props.name}</span>
-//         </button>
-//         <button type="submit" className="btn btn__primary todo-edit">
-//           Save
-//           <span className="visually-hidden">new name for {props.name}</span>
-//         </button>
-//       </div>
-//     </form>
-//   );
+  function handleClick() {
+    props.showDetails(props.id);
+    props.setEditing(false);
+  }
 
   return (
     <div className="stack-small">
@@ -57,23 +32,10 @@ export default function TaskItem(props) {
           defaultChecked={props.completed}
           onChange={() => props.toggleTaskCompleted(props.id)}
         />
-        <label className="todo-label" htmlFor={props.id} onClick={() => props.showDetails(props.id)}>
+        <label className="todo-label" htmlFor={props.id} onClick={handleClick}>
           {props.name}
         </label>
       </div>
-      {/* <div className="btn-group">
-        <button type="button" className="btn" onClick={() => setEditing(true)}>
-          Edit
-          <span className="visually-hidden">{props.name}</span>
-        </button>
-        <button
-          type="button"
-          className="btn btn__danger"
-          onClick={() => props.deleteTask(props.id)}
-        >
-          Delete <span className="visually-hidden">{props.name}</span>
-        </button>
-      </div> */}
     </div>
   );
 }
