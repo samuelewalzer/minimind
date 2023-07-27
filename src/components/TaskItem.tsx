@@ -1,39 +1,21 @@
-import React, { useState } from "react";
+import { useViewService } from "../viewService";
 
 export default function TaskItem(props) {
-  const [newName, setNewName] = useState("");
-
-  function handleChange(e) {
-    setNewName(e.target.value);
-  }
-
-  function handleSubmit(e) {
-    if (!newName) {
-      alert("Please enter a new task name");
-      return;
-    }
-    e.preventDefault();
-    props.editTask(props.id, newName);
-    setNewName("");
-    props.setEditing(false);
-  }
-
-  function handleClick() {
-    props.showDetails(props.id);
-    props.setEditing(false);
-  }
+  const { setDetailsView } = useViewService();
 
   return (
     <div className="stack-small">
-      <div className="c-cb">
+      <div className="c-cb" onClick={() => setDetailsView()}>
         <input
           id={props.id}
           type="checkbox"
           defaultChecked={props.completed}
-          onChange={() => props.toggleTaskCompleted(props.id)}
+          onClick={() => props.toggleTaskCompleted(props.id)}
         />
-        <label className="todo-label" htmlFor={props.id} onClick={handleClick}>
-          {props.name}
+        <label 
+          className="todo-label" 
+          htmlFor={props.id} >
+            <span onClick={() => setDetailsView()}>{props.name}</span>
         </label>
       </div>
     </div>

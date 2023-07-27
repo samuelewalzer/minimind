@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { nanoid } from "nanoid";
+import { Task } from '../appStore';
+import { database } from "./database";
+import { useViewService } from "../viewService";
 
 export default function Form(props: any) {
+
+  const { view, setEditView, setDefaultView, setDetailsView } = useViewService();
+
   const [input, setInput] = useState({
     name: "",
     deadline: new Date().toISOString().substring(0, 10),
@@ -10,7 +16,7 @@ export default function Form(props: any) {
     notes: "",
   });
 
-  function handleSubmit(e) {
+  function handleSubmit1(e) {
     if (!input.name) {
       alert("Please enter a task name");
       return;
@@ -23,11 +29,28 @@ export default function Form(props: any) {
       input.subtasks,
       input.notes
     );
-    props.setFormVis(false);
+    setDetailsView();
     setInput({
       ...input,
       [e.target.id]: "",
     });
+  }
+
+  function handleSubmit2(e) {
+    if (!input.name) {
+      alert("Please enter a task name");
+      return;
+    }
+    e.preventDefault();
+    const newTask = new Task(
+      `task-${nanoid()}`,
+      input.name, 
+      false, 
+      input.deadline, 
+      input.priority, 
+      input.subtasks, 
+      input.notes
+    );
   }
 
   function handleChange(e) {
@@ -73,7 +96,7 @@ export default function Form(props: any) {
 
   const viewTemplate = (
     <div className="btn-group">
-      <button type="button" className="btn" onClick={() => props.setEditing(true)}>
+      <button type="button" className="btn" onClick={() => setEditView()}>
         Edit
         <span className="visually-hidden">{props.name}</span>
       </button>
@@ -92,7 +115,7 @@ export default function Form(props: any) {
         <button
           type="button"
           className="btn btn__danger"
-          onClick={() => props.setFormVis(false)}
+          onClick={() => setDefaultView()}
         >
           Cancel
         </button>
@@ -103,14 +126,14 @@ export default function Form(props: any) {
   );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit1}>
       <input
         type="text"
         id="name"
         className="input input__lg"
         autoComplete="off"
         placeholder="Type your task title here"
-        disabled={!props.isEditing}
+        disabled={!view.edit}
         value={input.name}
         onChange={handleChange}
       />
@@ -121,7 +144,7 @@ export default function Form(props: any) {
             type="date"
             id="deadline"
             className="input input__lg"
-            disabled={!props.isEditing}
+            disabled={!view.edit}
             value={input.deadline}
             onChange={handleChange}
           />
@@ -132,7 +155,7 @@ export default function Form(props: any) {
             name="priority"
             id="priority"
             className="input input__lg"
-            disabled={!props.isEditing}
+            disabled={!view.edit}
             value={input.priority}
             onChange={handleChange}
           >
@@ -153,14 +176,14 @@ export default function Form(props: any) {
             id="notes"
             className="input input__lg"
             autoComplete="off"
-            disabled={!props.isEditing}
+            disabled={!view.edit}
             placeholder="Type your notes here"
             value={input.notes}
             onChange={handleChange}
           />
         </label>
       </div>
-      {props.isEditing ? editTemplate : viewTemplate}
+      {view.edit ? editTemplate : viewTemplate}
     </form>
   );
 }

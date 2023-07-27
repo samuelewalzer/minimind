@@ -26,20 +26,22 @@
  * ```
  */
 
-import './index.css';
-import React, { useState} from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { createRoot } from 'react-dom/client';
-import App from './app';
+import "./index.css";
+import React, { useState } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./app";
+import { useViewService, ViewServiceProvider } from "./viewService";
 
-console.log(`ℹ️ This app is using Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), and Electron (v${versions.electron()})`);
+console.log(
+  `ℹ️ This app is using Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), and Electron (v${versions.electron()})`
+);
 
-const container = document.getElementById('root');
+const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
-    <>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
-    </>
+  <>
+    <ViewServiceProvider>
+      <App />
+    </ViewServiceProvider>
+  </>
 );
