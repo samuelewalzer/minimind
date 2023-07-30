@@ -1,15 +1,20 @@
-import React, { createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { FCC } from "./components/@def";
+import { Task } from "./appStore";
 
-export interface ViewState {
-  edit: boolean;
-  details: boolean;
+const ViewMode = {
+  DEFAULT: 'default',
+  DETAILS: 'details',
+  EDIT: 'edit',
+  ADD: 'add',
 }
 
 interface ViewService {
-  view: ViewState;
+  currentTask: Task;
+  viewMode: string;
+  setAddView(): void;
   setEditView(): void;
-  setDetailsView(): void;
+  setDetailsView(task: Task): void;
   setDefaultView(): void;
 }
 
@@ -24,31 +29,35 @@ export const useViewService = (): ViewService => {
   return context;
 };
 
-export interface ViewStateProps {}
-
 export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
-  const [view, setView] = React.useState<ViewState>({
-    edit: false,
-    details: false,
-  });
+  const [currentTask, setCurrentTask] = useState<Task>();
+  const [viewMode, setViewMode] = useState(ViewMode.DEFAULT);
 
   const setEditView = (): void => {
-    setView({ ...view, details: true, edit: true });
+    setViewMode(ViewMode.EDIT);
     console.log("EditView set");
   };
 
-  const setDetailsView = (): void => {
-    setView({ ...view, details: true, edit: false });
+  const setDetailsView =  (task: Task): void => {
+    setCurrentTask(task);
+    setViewMode(ViewMode.DETAILS);
     console.log("DetailsView set");
   };
 
   const setDefaultView = (): void => {
-    setView({ ...view, details: false, edit: false });
+    setViewMode(ViewMode.DEFAULT);
     console.log("DefaultView set");
   };
 
+  const setAddView = (): void => {
+    setViewMode(ViewMode.ADD);
+    console.log("AddView set");
+  }
+
   const content: ViewService = {
-    view,
+    currentTask,
+    viewMode,
+    setAddView,
     setEditView,
     setDetailsView,
     setDefaultView,

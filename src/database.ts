@@ -3,13 +3,19 @@ import { Task } from './appStore';
 
 class Database {
   private db: sqlite3.Database;
-
+ 
   constructor() {
-    this.db = new sqlite3.Database(':memory:');
-    this.initTables();
+    this.db = new sqlite3.Database('./mydatabase.db', (error) => {
+      if (error) {
+        console.error('Error opening the database:', error);
+      } else {
+        this.initTables();
+      }
+    });
   }
 
   private initTables(): void {
+    console.log('Initializing database tables');
     // Create the tasks table if it doesn't exist
     this.db.run(`
       CREATE TABLE IF NOT EXISTS tasks (
@@ -18,7 +24,9 @@ class Database {
         name TEXT,
         deadline TEXT,
         priority TEXT,
-        notes TEXT
+        subtasks TEXT,
+        notes TEXT,
+        FOREIGN KEY (subtasks) REFERENCES subtasks(id)
       )
     `);
 
@@ -45,24 +53,26 @@ class Database {
           if (error) {
             reject(error);
           } else {
+            console.log(`Task ${task.name} added (${task.id})`)
             resolve();
           }
-        }
+        },
       );
     });
   }
 
-  editTask(taskId: string, updatedTask: Task): Promise<void> {
+  editTask( updatedTask: Task): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run(
         `
-        UPDATE tasks SET name = ?, completed = ?, deadline = ?, priority = ?, notes = ? WHERE id = ?
+        UPDATE tasks SET completed = ?, name = ?, deadline = ?, priority = ?, subtasks = ?, notes = ? WHERE id = ?
         `,
-        [updatedTask.name, updatedTask.completed, updatedTask.deadline.toISOString(), updatedTask.priority, updatedTask.notes, taskId],
+        [updatedTask.completed, updatedTask.name, updatedTask.deadline.toISOString(), updatedTask.priority, updatedTask.subtasks, updatedTask.notes, updatedTask.id],
         error => {
           if (error) {
             reject(error);
           } else {
+            console.log(`Task ${updatedTask.name} edited (${updatedTask.id})`)
             resolve();
           }
         }
@@ -87,6 +97,39 @@ class Database {
       );
     });
   }
+
+  getTasks(): Promise<Task[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM tasks',
+        (error: Error | null, rows: any[]) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+
+  getTask(taskId: string): Promise<Task> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * from tasks WHERE id = ?', 
+        [taskId],
+        (error, task: Task ) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(task);
+          }
+        }
+      );
+    })
+  }
+
+
 }
 
 export const database = new Database();
