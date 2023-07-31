@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { nanoid } from "nanoid";
 import { Task } from "../appStore";
 import { useViewService } from "../viewService";
+import Subtasks from "./Subtasks";
 
 // Form for viewing details of a task and editing it
 export default function TaskForm(props: any) {
@@ -26,8 +26,8 @@ export default function TaskForm(props: any) {
   }, [currentTask]);
 
   const year = input.deadline.getFullYear();
-  const month = (input.deadline.getMonth() + 1).toString().padStart(2,'0');
-  const day = (input.deadline.getDate()).toString().padStart(2, '0');
+  const month = (input.deadline.getMonth() + 1).toString().padStart(2, "0");
+  const day = input.deadline.getDate().toString().padStart(2, "0");
   const dateString = `${year}-${month}-${day}`;
 
   function handleChange(e: any) {
@@ -37,11 +37,22 @@ export default function TaskForm(props: any) {
         deadline: new Date(e.target.value),
       });
       return;
-    } setInput({
+    }
+    setInput({
       ...input,
       [e.target.id]: e.target.value,
     });
   }
+
+  async function fetchSubtasks() {
+    try {
+      const subtasksFromDB = await window.api.getSubtasksFromParent(currentTask.id);
+      console.log("Subtasks from DB:", subtasksFromDB);
+    } catch (error) {
+      console.log("Error fetching subtasks:", error);
+    }
+  }
+  
 
   function handleSubmit(e) {
     if (!input.name) {
@@ -71,11 +82,11 @@ export default function TaskForm(props: any) {
   const viewTemplate = (
     <div className="btn-group">
       <button type="button" className="btn" onClick={() => setEditView()}>
-        Edit
+        edit
         <span className="visually-hidden">{props.name}</span>
       </button>
       <button type="button" className="btn btn__danger" onClick={handleDelete}>
-        Delete <span className="visually-hidden">{props.name}</span>
+        delete <span className="visually-hidden">{props.name}</span>
       </button>
     </div>
   );
@@ -87,29 +98,32 @@ export default function TaskForm(props: any) {
         className="btn btn__danger"
         onClick={() => setDefaultView()}
       >
-        Cancel
+        cancel
       </button>
       <button type="submit" className="btn btn__add">
-        Submit
+        submit
       </button>
     </div>
   );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        id="name"
-        className="input input__lg"
-        autoComplete="off"
-        placeholder={input.name}
-        disabled={props.disabled}
-        value={input.name}
-        onChange={handleChange}
-      />
+    <form onSubmit={handleSubmit} className="input-form">
+      <label htmlFor="title">
+        title
+        <input
+          type="text"
+          id="name"
+          className="input input__lg"
+          autoComplete="off"
+          placeholder={input.name}
+          disabled={props.disabled}
+          value={input.name}
+          onChange={handleChange}
+        />
+      </label>
       <div className="input-group">
         <label htmlFor="deadline">
-          Deadline
+          deadline
           <input
             type="date"
             id="deadline"
@@ -120,7 +134,7 @@ export default function TaskForm(props: any) {
           />
         </label>
         <label htmlFor="priority">
-          Priority
+          priority
           <select
             name="priority"
             id="priority"
@@ -129,18 +143,21 @@ export default function TaskForm(props: any) {
             value={input.priority}
             onChange={handleChange}
           >
-            <option value="Low">Low</option>
-            <option value="Middle">Middle</option>
-            <option value="High">High</option>
+            <option value="low">low</option>
+            <option value="middle">middle</option>
+            <option value="high">high</option>
           </select>
         </label>
       </div>
       <div>
-        <label htmlFor="subtasks">Subtasks</label>
+        <div>
+        <Subtasks parentTaskId={currentTask.id}/>
+        <button onClick={fetchSubtasks}>fetch subtasks</button>
+      </div>
       </div>
       <div>
         <label htmlFor="notes">
-          Notes
+          notes
           <input
             type="text"
             id="notes"

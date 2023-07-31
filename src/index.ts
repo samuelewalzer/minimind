@@ -17,6 +17,7 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     height: 1500,
     width: 1000,
+    minWidth: 1000,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -54,6 +55,7 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+// Handler for Tasks
 ipcMain.handle('ADD_TASK', async (event, task) => {
   db.addTask(task);
 });
@@ -72,4 +74,13 @@ ipcMain.handle('DELETE_TASK', async (event, taskId) => {
 
 ipcMain.handle('EDIT_TASK', async (event, task) => {
   db.editTask(task);
+});
+
+// Handler for Subtasks
+ipcMain.handle('ADD_SUBTASK', async (event, subtask) => {
+  db.addSubtask(subtask);
+});
+
+ipcMain.handle('GET_SUBTASKS_FROM_PARENT', async (event, parentTaskId) => {
+  return db.getSubtasksFromParent(parentTaskId);
 });

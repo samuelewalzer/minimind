@@ -12,7 +12,7 @@ export interface Subtask {
     id: string;
     completed: boolean;
     name: string;
-    parentTask: Task;
+    parentTaskId: Task;
 }
 
 export interface AppStore {

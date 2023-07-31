@@ -1,5 +1,5 @@
 import sqlite3 from 'sqlite3';
-import { Task } from './appStore';
+import { Subtask, Task } from './appStore';
 
 class Database {
   private db: sqlite3.Database;
@@ -42,6 +42,7 @@ class Database {
     `);
   }
 
+  // functions for Tasks
   addTask(task: Task): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run(
@@ -129,7 +130,61 @@ class Database {
     })
   }
 
+  // functions for Subtasks
+  addSubtask(subtask: Subtask): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `
+        INSERT INTO subtasks (id, completed, name, parentTaskId) VALUES (?, ?, ?, ?)
+        `,
+        [subtask.id, subtask.completed, subtask.name, subtask.parentTaskId],
+        error => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(`Task ${subtask.name} added (${subtask.id})`)
+            resolve();
+          }
+        },
+      );
+    });
+  }
 
+  editSubtask( updatedSubtask: Subtask): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `
+        UPDATE subtasks SET name = ?, completed = ?, parentTaskId = ? WHERE id = ?
+        `,
+        [updatedSubtask.name, updatedSubtask.completed, updatedSubtask.parentTaskId, updatedSubtask.id],
+        error => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(`Subtask ${updatedSubtask.name} edited (${updatedSubtask.id})`)
+            resolve();
+          }
+        }
+      );
+    });
+  }
+
+  getSubtasksFromParent(parentTaskId: string): Promise<Subtask[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM subtasks WHERE parentTaskId = ?',
+        [parentTaskId],
+        (error: Error | null, rows: any[]) => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(`Subtasks from parent ${parentTaskId} retrieved`);
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
 }
 
 export const database = new Database();

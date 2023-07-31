@@ -1,10 +1,11 @@
 import { useViewService } from "../viewService";
+import { Task } from "../appStore";
 
 export default function TaskItem(props) {
   const { setDetailsView } = useViewService();
 
   function toggleTaskCompleted() {
-    const toggledTask = {
+    const toggledTask: Task = {
       id: props.currentTask.id,
       completed: !props.currentTask.completed,
       name: props.currentTask.name,

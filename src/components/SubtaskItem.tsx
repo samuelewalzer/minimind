@@ -1,19 +1,17 @@
+import { Subtask } from "src/appStore";
 import { useViewService } from "../viewService";
 
 export default function TaskItem(props) {
   const { setDetailsView } = useViewService();
 
   function toggleTaskCompleted() {
-    const toggledTask = {
+    const toggledTask: Subtask = {
       id: props.currentTask.id,
       completed: !props.currentTask.completed,
       name: props.currentTask.name,
-      deadline: new Date(props.currentTask.deadline),
-      priority: props.currentTask.priority,
-      subtasks: props.currentTask.subtasks,
-      notes: props.currentTask.notes,
+      pentTask: props.currentTask.parentTask,
     };
-    window.api.editTask(toggledTask)
+    window.api.editSubtask(toggledTask)
   }
 
   return (

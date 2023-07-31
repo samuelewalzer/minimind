@@ -2,11 +2,14 @@ import { useState } from "react";
 import { nanoid } from "nanoid";
 import { Task } from "../appStore";
 import { useViewService } from "../viewService";
+import Subtasks from "./Subtasks";
+import SmartInput from "./SmartInput";
 
 export default function AddForm() {
   const { setDefaultView } = useViewService();
 
   const [input, setInput] = useState({
+    id: `task-${nanoid()}`,
     name: "",
     deadline: new Date().toISOString().substring(0, 10),
     priority: "",
@@ -28,7 +31,7 @@ export default function AddForm() {
     }
     e.preventDefault();
     const newTask: Task = {
-      id: `task-${nanoid()}`,
+      id: input.id,
       name: input.name,
       completed: false,
       deadline: new Date(input.deadline),
@@ -36,54 +39,58 @@ export default function AddForm() {
       subtasks: input.subtasks,
       notes: input.notes,
     };
-    
+
     window.api.addTask(newTask);
     setDefaultView();
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        id="name"
-        className="input input__lg"
-        autoComplete="off"
-        placeholder=  "Type your task title here"
-        value={input.name}
-        onChange={handleChange}
-      />
+    <form onSubmit={handleSubmit} className="input-form">
+      <label htmlFor="title">
+        title
+        <input
+          type="text"
+          id="name"
+          className="input input__lg"
+          autoComplete="off"
+          placeholder="Type your task title here"
+          value={input.name}
+          onChange={handleChange}
+        />
+        <SmartInput />
+        </label>
       <div className="input-group">
         <label htmlFor="deadline">
-          Deadline
+          deadline
           <input
             type="date"
             id="deadline"
             className="input input__lg"
             value={input.deadline}
             onChange={handleChange}
-          />
-        </label>
+            />
+        </label>   
         <label htmlFor="priority">
-          Priority
+          priority
           <select
             name="priority"
             id="priority"
             className="input input__lg"
             value={input.priority}
             onChange={handleChange}
-          >
-            <option value="Low">Low</option>
-            <option value="Middle">Middle</option>
-            <option value="High">High</option>
+            >
+            <option value="low">low</option>
+            <option value="middle">middle</option>
+            <option value="high">high</option>
           </select>
         </label>
       </div>
       <div>
-        <label htmlFor="subtasks">Subtasks</label>
+        <Subtasks parentTaskId={input.id}/>
       </div>
       <div>
         <label htmlFor="notes">
-          Notes
+          notes
           <input
             type="text"
             id="notes"
@@ -96,17 +103,17 @@ export default function AddForm() {
         </label>
       </div>
       <div className="btn-group">
-      <button
-        type="button"
-        className="btn btn__danger"
-        onClick={() => setDefaultView()}
-      >
-        Cancel
-      </button>
-      <button type="submit" className="btn btn__add">
-        Add
-      </button>
-    </div>
+        <button
+          type="button"
+          className="btn btn__danger"
+          onClick={() => setDefaultView()}
+        >
+          cancel
+        </button>
+        <button type="submit" className="btn btn__add">
+          add
+        </button>
+      </div>
     </form>
   );
 }

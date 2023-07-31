@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext, useMemo } from "react";
 import { FCC } from "./components/@def";
 import { Task } from "./appStore";
 
@@ -31,7 +31,7 @@ export const useViewService = (): ViewService => {
 
 export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
   const [currentTask, setCurrentTask] = useState<Task>();
-  const [viewMode, setViewMode] = useState(ViewMode.DEFAULT);
+  const [viewMode, setViewMode] = useState(ViewMode.ADD);
 
   const setEditView = (): void => {
     setViewMode(ViewMode.EDIT);
@@ -54,14 +54,14 @@ export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
     console.log("AddView set");
   }
 
-  const content: ViewService = {
+  const content: ViewService = useMemo(() => ({
     currentTask,
     viewMode,
     setAddView,
     setEditView,
     setDetailsView,
     setDefaultView,
-  };
+  }), [currentTask, viewMode]);
 
   return (
     <ViewServiceContext.Provider value={content}>

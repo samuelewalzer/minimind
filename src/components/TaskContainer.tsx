@@ -10,10 +10,10 @@ const FILTER_MAP = {
 };
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-export default function TaskContainer(props) {
+export default function TaskContainer() {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("All");
-  const { setEditView, setAddView } = useViewService();
+  const { setAddView } = useViewService();
 
   // Fetch tasks from database through api
   useEffect(() => {
@@ -35,7 +35,6 @@ export default function TaskContainer(props) {
       <TaskItem
         currentTask = {task}
         key={task.id}
-        toggleTaskCompleted={toggleTaskCompleted}
       />
     ));
 
@@ -47,21 +46,6 @@ export default function TaskContainer(props) {
       setFilter={setFilter}
     />
   ));
-
-  function toggleTaskCompleted(id: string) {
-    const updatedTasks = props.tasks.map((task) => {
-      if (id === task.id) {
-        return { ...task, completed: !task.completed };
-      }
-      return task;
-    });
-    props.setTasks(updatedTasks);
-  }
-
-  function handleClick(e) {
-    setEditView();
-    console.log(e.target.id);
-  }
 
   return (
     <>
@@ -80,7 +64,7 @@ export default function TaskContainer(props) {
             className="btn btn__primary btn__lg"
             onClick={() => setAddView()}
           >
-            Add task
+            add task
           </button>
         </>
       </div>

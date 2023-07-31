@@ -107,7 +107,6 @@ input[type="text"] {
   padding: 0.8rem 1rem 0.7rem;
   border: 0.2rem solid #4d4d4d;
   cursor: pointer;
-  text-transform: capitalize;
 }
 .btn:hover {
   border-color: #000;
@@ -232,14 +231,11 @@ input[type="text"] {
   text-align: center;
 }
 .input__lg {
-  padding: 1rem;
+  padding: 0.5rem;
   border: 2px solid #000;
-  height: 100%;
 }
 .input__lg:disabled {
-  padding: 1rem;
   border: 2px solid #ffffff;
-  height: 100%;
 }
 .input__lg:focus {
   border-color: #4d4d4d;
@@ -248,6 +244,12 @@ input[type="text"] {
 .input-group {
   display: flex;
   justify-content: space-between;
+}
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 [class*="__lg"] {
   display: inline-block;
