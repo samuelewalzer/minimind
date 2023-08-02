@@ -12,7 +12,7 @@ export interface Subtask {
     id: string;
     completed: boolean;
     name: string;
-    parentTaskId: Task;
+    parentTaskId: Task['id'];
 }
 
 export interface AppStore {
@@ -22,3 +22,15 @@ export interface AppStore {
 export const appStore: AppStore = {
     tasks: [],
 };
+
+export interface SubtaskSuggestion {
+    name: string;
+    probability: number;
+}
+
+export interface SmartResponse {
+    id: string;
+    name: string;
+    probability: number;
+    subtasks: SubtaskSuggestion[];
+}

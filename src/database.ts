@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3';
-import { Subtask, Task } from './appStore';
+import { SmartResponse, Subtask, Task } from './appStore';
+import { nanoid } from 'nanoid';
 
 class Database {
   private db: sqlite3.Database;
@@ -38,6 +39,16 @@ class Database {
         name TEXT,
         parentTaskId TEXT,
         FOREIGN KEY (parentTaskId) REFERENCES tasks(id)
+      )
+    `);
+    
+    // Create the smartResponses table if it doesn't exist
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS smartResponses (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        probability NUMBER,
+        subtasks LIST
       )
     `);
   }
@@ -169,6 +180,74 @@ class Database {
     });
   }
 
+  updateSubtasks(subtasks: Subtask[]): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(() => {
+        subtasks.forEach((subtask) => {
+          // check is the subtask already exists and if not, add it to the db
+          if(!subtask.id) {
+             this.db.run(
+              `
+              INSERT INTO subtasks (id, completed, name, parentTaskId) VALUES (?, ?, ?, ?)
+              `,
+              [subtask.id, subtask.completed, subtask.name, subtask.parentTaskId],
+              error => {
+                if (error) {
+                  reject(error);
+                } else {
+                  console.log(`Subtask ${subtask.name} added (${subtask.id})`)
+                  resolve();
+                }
+              }
+            );
+          } else if (subtask.deleted){
+            // the subtask has been deleted -> delete it from the db
+            this.db.run(
+              `
+              DELETE FROM subtasks WHERE id = ?
+              `,
+              [subtask.id],
+              error => {
+                if (error) {
+                  reject(error);
+                } else {
+                  console.log(`Subtask ${subtask.name} deleted (${subtask.id})`)
+                  resolve();
+                }
+              }
+            );
+          } else {
+            // the subtask exists -> update it
+            this.db.run(
+              `
+              UPDATE subtasks SET name = ?, completed = ? WHERE id = ?
+              `,
+              [subtask.name, subtask.completed, subtask.id],
+              error => {
+                if (error) {
+                  reject(error);
+                } else {
+                  console.log(`Subtask ${subtask.name} edited (${subtask.id})`)
+                  resolve();
+                }
+              }
+            );
+          }
+        });
+      });
+
+      // commit the transaction
+      this.db.run('COMMIT', (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          console.log(`Change submitted`)
+          resolve();
+        }
+      })
+    })
+  }
+
   getSubtasksFromParent(parentTaskId: string): Promise<Subtask[]> {
     return new Promise((resolve, reject) => {
       this.db.all(
@@ -178,10 +257,33 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            console.log(`Subtasks from parent ${parentTaskId} retrieved`);
+            // console.log(`Subtasks from parent ${parentTaskId} retrieved`);
             resolve(rows);
           }
         }
+      );
+    });
+  }
+
+  // function to handle submit of a new task or edit of an existing task
+
+  // Functions for Smart Responses
+  addSmartResponse(data: SmartResponse): Promise<SmartResponse> {
+    return new Promise((resolve, reject) => {
+      const id = `smartResponse-${nanoid()}`
+      this.db.run(
+        `
+        INSERT INTO smartResponses (id, name, probability, subtasks) VALUES (?, ?, ?, ?)
+        `,
+        [id, data.name, data.probability, data.subtasks],
+        error => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(`SmartResponse ${data.name} added (${id})`)
+            resolve(data);
+          }
+        },
       );
     });
   }

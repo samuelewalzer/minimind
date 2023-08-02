@@ -108,7 +108,7 @@ export default function TaskForm(props: any) {
 
   return (
     <form onSubmit={handleSubmit} className="input-form">
-      <label htmlFor="title">
+      <label htmlFor="title" className="label_details">
         title
         <input
           type="text"
@@ -121,8 +121,13 @@ export default function TaskForm(props: any) {
           onChange={handleChange}
         />
       </label>
+      <div>
+        <div>
+        <Subtasks parentTaskId={currentTask.id}/>
+        <button onClick={fetchSubtasks}>fetch subtasks</button>
+      </div>
       <div className="input-group">
-        <label htmlFor="deadline">
+        <label htmlFor="deadline" className="label_details">
           deadline
           <input
             type="date"
@@ -133,7 +138,7 @@ export default function TaskForm(props: any) {
             onChange={handleChange}
           />
         </label>
-        <label htmlFor="priority">
+        <label htmlFor="priority" className="label_details">
           priority
           <select
             name="priority"
@@ -149,14 +154,9 @@ export default function TaskForm(props: any) {
           </select>
         </label>
       </div>
-      <div>
-        <div>
-        <Subtasks parentTaskId={currentTask.id}/>
-        <button onClick={fetchSubtasks}>fetch subtasks</button>
-      </div>
       </div>
       <div>
-        <label htmlFor="notes">
+        <label htmlFor="notes" className="label_details">
           notes
           <input
             type="text"

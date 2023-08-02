@@ -22,6 +22,7 @@ select:disabled {
 
 .task {
   border: 2px solid blue;
+  border-radius: 20px;
   padding: 1rem;
   margin: 1rem;
 }
@@ -88,7 +89,7 @@ input {
   overflow: visible;
 }
 input[type="text"] {
-  border-radius: 0;
+  border-radius: 1re;
 }
 
 @media screen and (min-width: 620px) {
@@ -110,8 +111,8 @@ input[type="text"] {
 }
 .btn:hover {
   border-color: #000;
-  background-color: #000;
-  color: #ffffff
+  background-color: #ffffff;
+  color: #000000
 }
 .btn.toggle-btn {
   border-width: 1px;
@@ -158,10 +159,17 @@ input[type="text"] {
 .btn-group > * + * {
   margin-left: 0.8rem;
 }
+.label-group {
+  display: flex;
+  justify-content: space-between;
+}
 .label-wrapper {
   margin: 0;
   flex: 0 0 100%;
   text-align: center;
+}
+.label_details {
+  font-weight: bold;
 }
 .visually-hidden {
   position: absolute !important;
@@ -232,10 +240,12 @@ input[type="text"] {
 }
 .input__lg {
   padding: 0.5rem;
-  border: 2px solid #000;
+  border: 1px solid lightgray;
+  background-color: rgb(237, 237, 237);
 }
 .input__lg:disabled {
-  border: 2px solid #ffffff;
+  border: 0px solid #ffffff;
+  background-color: #ffffff;
 }
 .input__lg:focus {
   border-color: #4d4d4d;
@@ -251,6 +261,12 @@ input[type="text"] {
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
+.input-container {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
 [class*="__lg"] {
   display: inline-block;
   width: 100%;
@@ -258,6 +274,7 @@ input[type="text"] {
 }
 [class*="__lg"]:not(:last-child) {
   margin-bottom: 1rem;
+  margin-top: 1rem
 }
 @media screen and (min-width: 620px) {
   [class*="__lg"] {
@@ -285,7 +302,8 @@ input[type="text"] {
 /* CHECKBOX STYLES */
 .c-cb {
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  border-radius: 1rem;
+  font-family: Arial, sans-serif, "source-code-variable";
   -webkit-font-smoothing: antialiased;
   font-weight: 400;
   font-size: 1.6rem;
@@ -300,6 +318,7 @@ input[type="text"] {
 .c-cb > label::before,
 .c-cb > input[type="checkbox"] {
   box-sizing: border-box;
+  border-radius: 1rem;
   top: -2px;
   left: -2px;
   width: 44px;

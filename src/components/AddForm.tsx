@@ -7,6 +7,12 @@ import SmartInput from "./SmartInput";
 
 export default function AddForm() {
   const { setDefaultView } = useViewService();
+  const [smartResponse, setSmartResponse] = useState({
+    name: String,
+    completed: false,
+    probability: Number,
+    subtasks: [],
+  });
 
   const [input, setInput] = useState({
     id: `task-${nanoid()}`,
@@ -57,8 +63,11 @@ export default function AddForm() {
           value={input.name}
           onChange={handleChange}
         />
-        <SmartInput />
+        <SmartInput smartResponse={smartResponse} setSmartResponse={setSmartResponse}/>
         </label>
+      <div>
+        <Subtasks smartResponse={smartResponse} setSmartResponse={setSmartResponse} parentTaskId={input.id}/>
+      </div>
       <div className="input-group">
         <label htmlFor="deadline">
           deadline
@@ -84,9 +93,6 @@ export default function AddForm() {
             <option value="high">high</option>
           </select>
         </label>
-      </div>
-      <div>
-        <Subtasks parentTaskId={input.id}/>
       </div>
       <div>
         <label htmlFor="notes">

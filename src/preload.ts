@@ -1,66 +1,74 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
-import { Subtask, Task } from './appStore';
+import { Subtask, Task } from "./appStore";
 
-const { ipcRenderer, contextBridge } = require('electron')
+const { ipcRenderer, contextBridge } = require("electron");
 
 contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron,
-})
+  node: () => process.versions.node,
+  chrome: () => process.versions.chrome,
+  electron: () => process.versions.electron,
+});
 
 declare global {
-    interface Window {
-        api: {
-            // Tasks
-            addTask: (task: Task) => void;
-            getTasks: () => Promise<Task[]>;
-            deleteTask: (taskId: string) => void;
-            editTask: (task: Task) => void;
+  interface Window {
+    api: {
+      // Tasks
+      addTask: (task: Task) => void;
+      getTasks: () => Promise<Task[]>;
+      deleteTask: (taskId: string) => void;
+      editTask: (task: Task) => void;
 
-            // Subtasks
-            addSubtask: (subtask: Subtask) => void;
-            deleteSubtask: (subtaskId: string) => void;
-            editSubtask: (subtask: Subtask) => void;
-            getSubtasksFromParent: (parentTaskId: string) => Promise<Subtask[]>;
-        }
-    }
+      // Subtasks
+      addSubtask: (subtask: Subtask) => void;
+      deleteSubtask: (subtaskId: string) => void;
+      editSubtask: (subtask: Subtask) => void;
+      getSubtasksFromParent: (parentTaskId: string) => Promise<Subtask[]>;
+
+      // SmartInput
+      // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
+      addSmartResponse: (input: string) => Promise<string>;
+    };
+  }
 }
 
-contextBridge.exposeInMainWorld('api', {
+contextBridge.exposeInMainWorld("api", {
+  //Bridges for Tasks
+  addTask: async (task: Task) => {
+    await ipcRenderer.invoke("ADD_TASK", task);
+  },
 
-    //Bridges for Tasks
-    addTask: async (task: Task) => {
-        await ipcRenderer.invoke('ADD_TASK', task);
-    },
-    
-    getTasks: async () => {
-        return await ipcRenderer.invoke('GET_TASKS');
-    },
-    
-    editTask: async (task: Task) => {
-        await ipcRenderer.invoke('EDIT_TASK', task);
-    },
+  getTasks: async () => {
+    return await ipcRenderer.invoke("GET_TASKS");
+  },
 
-    deleteTask: async (taskId: string) => {
-        await ipcRenderer.invoke('DELETE_TASK', taskId);
-    },
+  editTask: async (task: Task) => {
+    await ipcRenderer.invoke("EDIT_TASK", task);
+  },
 
-    // Bridges for Subtasks
-    addSubtask: async (subtask: Subtask) => {
-        await ipcRenderer.invoke('ADD_SUBTASK', subtask);
-    },
+  deleteTask: async (taskId: string) => {
+    await ipcRenderer.invoke("DELETE_TASK", taskId);
+  },
 
-    deleteSubtask: async (taskId: string) => {
-        await ipcRenderer.invoke('DELETE_TASK', taskId);
-    },
-    
-    editSubtask: async (subtask: Subtask) => {
-        await ipcRenderer.invoke('EDIT_SUBTASK', subtask);
-    },
+  // Bridges for Subtasks
+  addSubtask: async (subtask: Subtask) => {
+    await ipcRenderer.invoke("ADD_SUBTASK", subtask);
+  },
 
-    getSubtasksFromParent: async (parentTaskId: string) => {
-        await ipcRenderer.invoke('GET_SUBTASKS_FROM_PARENT', parentTaskId);
-    },
-})
+  deleteSubtask: async (taskId: string) => {
+    await ipcRenderer.invoke("DELETE_TASK", taskId);
+  },
+
+  editSubtask: async (subtask: Subtask) => {
+    await ipcRenderer.invoke("EDIT_SUBTASK", subtask);
+  },
+
+  getSubtasksFromParent: async (parentTaskId: string) => {
+    return await ipcRenderer.invoke("GET_SUBTASKS_FROM_PARENT", parentTaskId);
+  },
+
+  // Bridge for SmartResponse
+  addSmartResponse: async (input: string) => {
+    return await ipcRenderer.invoke("ADD_SMART_RESPONSE", input);
+  },
+});

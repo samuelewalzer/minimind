@@ -16,8 +16,8 @@ const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 1500,
-    width: 1000,
-    minWidth: 1000,
+    width: 1200,
+    minWidth: 1200,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -84,3 +84,42 @@ ipcMain.handle('ADD_SUBTASK', async (event, subtask) => {
 ipcMain.handle('GET_SUBTASKS_FROM_PARENT', async (event, parentTaskId) => {
   return db.getSubtasksFromParent(parentTaskId);
 });
+
+// Handler for SmartInput
+import {Configuration, OpenAIApi} from 'openai';
+import dotenv from 'dotenv';
+dotenv.config();
+
+ipcMain.handle('ADD_SMART_RESPONSE', async (event, input) => {
+  console.log(input);
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const openai = new OpenAIApi(configuration);
+
+  const JSONformat = "{'name': 'Example Test Title','probability': 70,'subtasks': [{'name': 'Research potential topics','probability': 50},{'task': 'Write conclusion','probability': 50},{'task': 'Proofread and edit','probability': 50}]}";
+  const inputTemplate = `Always respond with a json according to this template: ${JSONformat}. For the task:${input}, check the probability that the task can be done in 30 minutes. The probability score is between 0 and 100. If the probability is below 50, give suggestions for subtasks that are also around 30 minutes. If you have no suggestions, return an empty array.`;
+  
+  try {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {"role": "system", "content": `Structure the output as JSON file with the following format: ${JSONformat}. Only respond with a JSON file, no additional text`},
+        {"role": "user", "content": inputTemplate},
+      ],
+      temperature: 1,
+      max_tokens: 150,
+    });
+    const response = completion.data.choices[0].message.content;
+    console.log("Response in index.ts:", response);
+    const data = JSON.parse(response);
+    return db.addSmartResponse(data);
+  } catch (error) {
+    if (error.response) {
+      console.log(error.response.status);
+      console.log(error.response.data);
+    } else {
+      console.log(error.message);
+    }
+  }
+})

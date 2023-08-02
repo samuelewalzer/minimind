@@ -1,9 +1,10 @@
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
-import { Subtask } from "../appStore";
 import SubtaskItem from "./SubtaskItem";
+import { useViewService } from "../viewService";
 
 export default function Subtasks(props) {
+  const { viewMode } = useViewService();
   const [subtasks, setSubtasks] = useState([]);
   const [inputField, setInputField] = useState(false);
   const [subtaskInput, setSubtaskInput] = useState({
@@ -15,22 +16,24 @@ export default function Subtasks(props) {
   useEffect(() => {
     async function fetchSubtasks() {
       try {
-        const subtasksFromDB = await window.api.getSubtasksFromParent(props.parentTaskId);
+        const subtasksFromDB = await window.api.getSubtasksFromParent(
+          props.parentTaskId
+        );
         setSubtasks(subtasksFromDB);
-        console.log(`Subtasks of ${props.parentTaskId}from DB:`, subtasksFromDB);
       } catch (error) {
         console.log("Error fetching subtasks:", error);
       }
     }
     fetchSubtasks();
-    console.log("Subtasks:", subtasks);
   }, [props.parentTaskId, subtasks]);
 
-  const subtaskList = subtasks ? (subtasks.map((subtask: Subtask) => (
-    <SubtaskItem key={subtask.id} subtask={subtask} />
-  ))) : (
-    <p>No subtasks available</p>
-  );
+  const subtaskList = subtasks.map((subtask) => (
+    <SubtaskItem
+      key={subtask.id}
+      subtask={subtask}
+      handleChange={handleChange}
+    />
+  ));
 
   function handleChange(e) {
     setSubtaskInput({
@@ -40,55 +43,52 @@ export default function Subtasks(props) {
   }
 
   // When the user submits the form, add the subtask to the database
-  function handleSubmit(e) {
+  function addSubtask(e) {
     if (!subtaskInput.name) {
       alert("Please enter a subtask name");
       return;
     }
     e.preventDefault();
-    const newSubtask: Subtask = {
+    const newSubtask = {
       id: `subtask-${nanoid()}`,
       completed: false,
       name: subtaskInput.name,
       parentTaskId: props.parentTaskId,
     };
-    window.api.addSubtask(newSubtask);
-    setInputField(false);
+    setSubtasks([...subtasks, newSubtask]);
+    console.log(subtasks)
+    setSubtaskInput({
+      name: "",
+      completed: false,
+    });
   }
 
-  const addButton = (
-    <button type="button" className="btn" onClick={() => setInputField(true)}>
-      add subtask
-    </button>
-  );
-
-  const inputFieldTemplate = (
+  const editAddTemplate = (
     <>
-      <input
-        type="text"
-        id="subtask"
-        placeholder="set the title of the subtask"
-        className="input input__lg"
-        onChange={handleChange}
-      />
-      <button
-        type="button"
-        className="btn"
-        style={{ marginRight: "1rem" }}
-        onClick={() => setInputField(false)}
-      >
-        cancel
-      </button>
-      <button type="button" className="btn" onClick={handleSubmit}>
-        submit
-      </button>
+      <div className="input-container">
+        <input
+          type="text"
+          id="subtask"
+          placeholder="add subtask"
+          className="input input__lg"
+          value={subtaskInput.name}
+          onChange={handleChange}
+        />
+        <button type="button" className="btn" onClick={addSubtask}>
+          add
+        </button>
+      </div>
     </>
   );
   return (
     <>
-      <label htmlFor="subtasks">subtasks</label>
-      {subtaskList}
-      <div>{inputField ? inputFieldTemplate : addButton}</div>
+      <label htmlFor="subtasks" className="label_details">
+        subtasks
+      </label>
+      {subtaskList.length > 0 ? subtaskList : <p>No subtasks added</p>}
+      <div>
+        {viewMode === "add" || viewMode === "edit" ? editAddTemplate : null}
+      </div>
     </>
   );
 }

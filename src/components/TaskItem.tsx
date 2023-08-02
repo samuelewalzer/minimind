@@ -14,8 +14,14 @@ export default function TaskItem(props) {
       subtasks: props.currentTask.subtasks,
       notes: props.currentTask.notes,
     };
-    window.api.editTask(toggledTask)
+    window.api.editTask(toggledTask);
   }
+
+  const date = new Date(props.currentTask.deadline);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const formattedDate = `${day}.${month}.${year}`;
 
   return (
     <div className="stack-small">
@@ -26,11 +32,17 @@ export default function TaskItem(props) {
           defaultChecked={props.currentTask.completed}
           onClick={toggleTaskCompleted}
         />
-        <label 
-          className="todo-label" 
-          htmlFor={props.currentTask.id} >
+
+          <label className="" htmlFor={props.currentTask.id}>
             <span>{props.currentTask.name}</span>
-        </label>
+          </label>
+          <label
+            className="todo-label"
+            htmlFor={props.currentTask.deadline}
+          >
+            <span>{formattedDate}</span>
+          </label>
+
       </div>
     </div>
   );
