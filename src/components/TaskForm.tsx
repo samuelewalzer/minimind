@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Task } from "../appStore";
 import { useViewService } from "../viewService";
-import Subtasks from "./Subtasks";
+import SubtaskContainer from "./SubtaskContainer";
 
 // Form for viewing details of a task and editing it
 export default function TaskForm(props: any) {
-  const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView } =
-    useViewService();
+  const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView } = useViewService();
+  const [subtasks, setSubtasks] = useState([]);
 
   const [input, setInput] = useState({
     name: "",
@@ -15,6 +15,7 @@ export default function TaskForm(props: any) {
     subtasks: [],
     notes: "",
   });
+
   useEffect(() => {
     setInput({
       name: currentTask.name,
@@ -44,15 +45,17 @@ export default function TaskForm(props: any) {
     });
   }
 
-  async function fetchSubtasks() {
-    try {
-      const subtasksFromDB = await window.api.getSubtasksFromParent(currentTask.id);
-      console.log("Subtasks from DB:", subtasksFromDB);
-    } catch (error) {
-      console.log("Error fetching subtasks:", error);
+  useEffect(() => {
+    async function fetchSubtasks() {
+      try {
+        const response = await window.api.getSubtasksFromParent(currentTask.id);
+        setSubtasks(response);
+      } catch (error) {
+        console.log("Error fetching subtasks:", error);
+      }
     }
-  }
-  
+    fetchSubtasks();
+  }, [input]);
 
   function handleSubmit(e) {
     if (!input.name) {
@@ -123,8 +126,7 @@ export default function TaskForm(props: any) {
       </label>
       <div>
         <div>
-        <Subtasks parentTaskId={currentTask.id}/>
-        <button onClick={fetchSubtasks}>fetch subtasks</button>
+        <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} />
       </div>
       <div className="input-group">
         <label htmlFor="deadline" className="label_details">

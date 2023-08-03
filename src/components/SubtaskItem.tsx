@@ -2,9 +2,11 @@ import { Subtask } from "src/appStore";
 import { useViewService } from "../viewService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
 
 export default function SubTaskItem(props) {
   const { setDetailsView, viewMode } = useViewService();
+  const [subtaskName, setSubtaskName] = useState(props.subtask.name);
 
   function toggleTaskCompleted() {
     const toggledTask: Subtask = {
@@ -15,6 +17,10 @@ export default function SubTaskItem(props) {
     };
     window.api.editSubtask(toggledTask);
   }
+
+function handleChange() {
+  setSubtaskName(e.target.value);
+}
 
   //When in details mode, display the subtask items with a checkbox
   const detailsTemplate = (
@@ -40,11 +46,12 @@ export default function SubTaskItem(props) {
           id="subtask"
           className="input input__lg"
           autoComplete="off"
-          placeholder={props.subtask.name}
-          // value={props.subtask.name}
-          // onChange={props.handleChange}
-        />
-        <button type="button" className="btn">
+          placeholder={subtaskName}
+          value={subtaskName}
+          onChange={handleChange}
+          />
+        <button type="button" className="btn" onClick={() => props.delete(props.subtask.id)}>
+          {/* TODO: Add edit button and delete onBlur handler */}
         <FontAwesomeIcon icon={faTrashCan} style={{color: "#ff2600",}} />
         </button>
       </div>

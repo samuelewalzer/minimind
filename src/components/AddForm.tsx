@@ -2,8 +2,8 @@ import { useState } from "react";
 import { nanoid } from "nanoid";
 import { Task } from "../appStore";
 import { useViewService } from "../viewService";
-import Subtasks from "./Subtasks";
 import SmartInput from "./SmartInput";
+import SubtaskContainer from "./SubtaskContainer";
 
 export default function AddForm() {
   const { setDefaultView } = useViewService();
@@ -13,14 +13,16 @@ export default function AddForm() {
     probability: Number,
     subtasks: [],
   });
+  const [subtasks, setSubtasks] = useState([]);
 
   const [input, setInput] = useState({
     id: `task-${nanoid()}`,
+    completed: false,
     name: "",
     deadline: new Date().toISOString().substring(0, 10),
     priority: "",
-    subtasks: [],
     notes: "",
+    subtasks: subtasks,
   });
 
   function handleChange(e: any) {
@@ -42,7 +44,7 @@ export default function AddForm() {
       completed: false,
       deadline: new Date(input.deadline),
       priority: input.priority,
-      subtasks: input.subtasks,
+      subtasks: subtasks,
       notes: input.notes,
     };
 
@@ -66,7 +68,7 @@ export default function AddForm() {
         <SmartInput smartResponse={smartResponse} setSmartResponse={setSmartResponse}/>
         </label>
       <div>
-        <Subtasks smartResponse={smartResponse} setSmartResponse={setSmartResponse} parentTaskId={input.id}/>
+        <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id}/>
       </div>
       <div className="input-group">
         <label htmlFor="deadline">
@@ -75,6 +77,7 @@ export default function AddForm() {
             type="date"
             id="deadline"
             className="input input__lg"
+            // TODO: deadline must not necessarily be set
             value={input.deadline}
             onChange={handleChange}
             />

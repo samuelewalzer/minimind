@@ -18,6 +18,7 @@ class Database {
   private initTables(): void {
     console.log('Initializing database tables');
     // Create the tasks table if it doesn't exist
+    // TODO: change deadline to DATE
     this.db.run(`
       CREATE TABLE IF NOT EXISTS tasks (
         id TEXT PRIMARY KEY,
@@ -25,7 +26,7 @@ class Database {
         name TEXT,
         deadline TEXT,
         priority TEXT,
-        subtasks TEXT,
+        subtasks LIST,
         notes TEXT,
         FOREIGN KEY (subtasks) REFERENCES subtasks(id)
       )
@@ -38,7 +39,7 @@ class Database {
         completed BOOLEAN,
         name TEXT,
         parentTaskId TEXT,
-        FOREIGN KEY (parentTaskId) REFERENCES tasks(id)
+        FOREIGN KEY (parentTaskId) REFERENCES tasks(id) ON DELETE CASCADE
       )
     `);
     
@@ -54,8 +55,11 @@ class Database {
   }
 
   // functions for Tasks
-  addTask(task: Task): Promise<void> {
-    return new Promise((resolve, reject) => {
+  async addTask(task: Task): Promise<void> {
+    const temporarySubtasks = [...task.subtasks];
+    console.log(task);
+    
+    await new Promise((resolve, reject) => {
       this.db.run(
         `
         INSERT INTO tasks (id, completed, name, deadline, priority, notes) VALUES (?, ?, ?, ?, ?, ?)
@@ -66,12 +70,51 @@ class Database {
             reject(error);
           } else {
             console.log(`Task ${task.name} added (${task.id})`)
-            resolve();
+            resolve(error);
           }
-        },
+        }
       );
     });
+    for (const subtask of temporarySubtasks) {
+      await new Promise((resolve, reject) => {
+        this.db.run(
+          `
+          INSERT INTO subtasks (id, completed, name, parentTaskId) VALUES (?, ?, ?, ?)
+          `,
+          [subtask.id, subtask.completed, subtask.name, task.id],
+          (error) => {
+            if(error) {
+              reject(error);
+            } else {
+              console.log(`Subtask ${subtask.name} added (${subtask.id})`)
+              resolve(error);
+            }
+          }
+        )
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
+  // addTask(task: Task): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.db.run(
+  //       `
+  //       INSERT INTO tasks (id, completed, name, deadline, priority, notes) VALUES (?, ?, ?, ?, ?, ?)
+  //       `,
+  //       [task.id, task.completed, task.name, task.deadline.toISOString(), task.priority, task.notes],
+  //       error => {
+  //         if (error) {
+  //           reject(error);
+  //         } else {
+  //           console.log(`Task ${task.name} added (${task.id})`)
+  //           resolve();
+  //         }
+  //       },
+  //     );
+  //   });
+  // }
 
   editTask( updatedTask: Task): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -180,7 +223,7 @@ class Database {
     });
   }
 
-  updateSubtasks(subtasks: Subtask[]): Promise<void> {
+  async updateSubtasks(subtasks: Subtask[]): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.serialize(() => {
         subtasks.forEach((subtask) => {

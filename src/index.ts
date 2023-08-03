@@ -81,6 +81,10 @@ ipcMain.handle('ADD_SUBTASK', async (event, subtask) => {
   db.addSubtask(subtask);
 });
 
+ipcMain.handle('EDIT_SUBTASK', async (event, task) => {
+  db.editSubtask(task);
+});
+
 ipcMain.handle('GET_SUBTASKS_FROM_PARENT', async (event, parentTaskId) => {
   return db.getSubtasksFromParent(parentTaskId);
 });
