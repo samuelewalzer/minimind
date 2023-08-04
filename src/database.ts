@@ -97,42 +97,105 @@ class Database {
     console.error(error);
     throw error;
   }
-  // addTask(task: Task): Promise<void> {
-  //   return new Promise((resolve, reject) => {
-  //     this.db.run(
-  //       `
-  //       INSERT INTO tasks (id, completed, name, deadline, priority, notes) VALUES (?, ?, ?, ?, ?, ?)
-  //       `,
-  //       [task.id, task.completed, task.name, task.deadline.toISOString(), task.priority, task.notes],
-  //       error => {
-  //         if (error) {
-  //           reject(error);
-  //         } else {
-  //           console.log(`Task ${task.name} added (${task.id})`)
-  //           resolve();
-  //         }
-  //       },
-  //     );
-  //   });
-  // }
 
-  editTask( updatedTask: Task): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.run(
-        `
-        UPDATE tasks SET completed = ?, name = ?, deadline = ?, priority = ?, subtasks = ?, notes = ? WHERE id = ?
-        `,
-        [updatedTask.completed, updatedTask.name, updatedTask.deadline.toISOString(), updatedTask.priority, updatedTask.subtasks, updatedTask.notes, updatedTask.id],
-        error => {
-          if (error) {
-            reject(error);
-          } else {
-            console.log(`Task ${updatedTask.name} edited (${updatedTask.id})`)
-            resolve();
-          }
+  async editTask(updatedTask: Task): Promise<void> {
+    try {
+      const temporarySubtasks = updatedTask.subtasks ?? [];
+      console.log(updatedTask)
+      // Update the task in the tasks table
+      await new Promise((resolve, reject) => {
+        this.db.run(
+                `
+                UPDATE tasks SET completed = ?, name = ?, deadline = ?, priority = ?, subtasks = ?, notes = ? WHERE id = ?
+                `,
+                [
+                  updatedTask.completed, 
+                  updatedTask.name, 
+                  updatedTask.deadline.toISOString(), 
+                  updatedTask.priority, 
+                  updatedTask.subtasks, 
+                  updatedTask.notes, 
+                  updatedTask.id
+                ],
+                (error) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    console.log(`Task ${updatedTask.name} edited (${updatedTask.id})`)
+                    resolve(error);
+                  }
+                }
+              );
+      });
+
+      for (const subtask of temporarySubtasks) {
+        // if the subtask doesn't have an id, it is a new one and should be inserted
+        if(!subtask.id) {
+          console.log("trying to insert subtask");
+          await new Promise((resolve, reject) => {
+            this.db.run(
+              `
+              INSERT INTO subtasks (id, completed, name, parentTaskId) VALUES (?, ?, ?, ?)
+              `,
+              [subtask.id, subtask.completed, subtask.name, updatedTask.id],
+              (error) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  console.log(`Subtask ${subtask.name} added (${subtask.id})`)
+                  resolve(error);
+                }
+              },
+              );
+            });
+        // if the subtask has an id and is marked deleted, delete it 
+        } else if (subtask.deleted) {
+          console.log("trying to delete subtask");
+          await new Promise((resolve, reject) => {
+            this.db.run(
+              `
+              DELETE FROM subtasks WHERE id = ?
+              `,
+              [subtask.id],
+              (error) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  console.log(`Subtask ${subtask.name} deleted (${subtask.id})`);
+                  resolve(error);
+                }
+              });
+            });
+        } else {
+          // if the subtask has an id and is not marked delete, update it
+          console.log("trying to edit subtask");
+          await new Promise((resolve, reject) => {
+            this.db.run(
+              `
+              UPDATE subtasks SET name = ?, completed = ?, parentTaskId = ? WHERE id = ?
+              `,
+              [
+                subtask.name,
+                subtask.completed,
+                updatedTask.id,
+                subtask.id
+              ],
+              (error) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  console.log(`Subtask ${subtask.name} edited (${subtask})`)
+                  resolve(error);
+                }
+              }
+            );
+          });
         }
-      );
-    });
+      }
+    } catch (error) {
+      console.error('Error editing task:', error)
+      throw error;
+    }
   }
 
   deleteTask(taskId: string): Promise<void> {
@@ -196,7 +259,7 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            console.log(`Task ${subtask.name} added (${subtask.id})`)
+            console.log(`Subtask ${subtask.name} added (${subtask.id})`)
             resolve();
           }
         },
@@ -333,3 +396,11 @@ class Database {
 }
 
 export const database = new Database();
+
+      // TODO: set this trigger using a SQL management tool
+      // CREATE TRIGGER IF NOT EXISTS delete_subtasts_on_parent_delet
+      // AFTER DELETE ON tasks
+      // FOR EACH ROW
+      // BEGIN
+      //   DELETE FROM subtasks WHERE parentTaskId = OLD.id;
+      // END;

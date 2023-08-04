@@ -22,7 +22,8 @@ export default function SubtaskContainer(props) {
       key={subtask.id}
       subtask={subtask}
       handleChange={handleChange}
-      delete={deleteSubtask}
+      editSubtask={editSubtask}
+      deleteSubtask={deleteSubtask}
     />
   ));
 
@@ -46,8 +47,17 @@ export default function SubtaskContainer(props) {
     setSubtaskName("");
   }
 
-  function deleteSubtask(subtaskId: String) {
-    const updatedSubtasks = props.subtasks.filter((subtask) => subtask.id !== subtaskId);
+  function deleteSubtask(subtaskId: string) {
+    const updatedSubtasks = props.subtasks.map((subtask) => 
+      subtask.id === subtaskId ? {...subtask, deleted: true} : subtask
+    );
+    props.setSubtasks(updatedSubtasks);
+  }
+
+  function editSubtask(subtaskId: string, newName: string) {
+    const updatedSubtasks = props.subtasks.map((subtask) => 
+      subtask.id === subtaskId ? {...subtask, name: newName} : subtask
+    );
     props.setSubtasks(updatedSubtasks);
   }
 

@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { useState } from "react";
 
 export default function SmartInput(props) {
@@ -13,10 +14,14 @@ export default function SmartInput(props) {
       return;
     }
     e.preventDefault();
-    const data = setSmartResponse(smartInput);
+    getSmartResponse();
   }
   
-  async function setSmartResponse(smartInput: string) {
+  async function getSmartResponse() {
+    if (!smartInput) {
+      alert("Plase enter a smart task name");
+      return;
+    }
     try {
       const response = await window.api.addSmartResponse(smartInput);
       props.setSmartResponse({
@@ -26,8 +31,26 @@ export default function SmartInput(props) {
         probability: response.probability,
         subtasks: response.subtasks,
       });
+      parseSmartResponse(response)
+      console.log(response);
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  function parseSmartResponse(response) {
+    if (response.subtasks.length > 0) {
+      response.subtasks.forEach((subtask) => {
+        props.setSubtasks((prevSubtasks) => [
+          ...prevSubtasks,
+          {
+            id: `smartsubtask${nanoid()}`,
+            name: subtask.name,
+            completed: false,
+            parentTaskId: props.parentTaskId,
+          },
+        ]);
+      });
     }
   }
 

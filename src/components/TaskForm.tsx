@@ -69,7 +69,7 @@ export default function TaskForm(props: any) {
       name: input.name,
       deadline: new Date(input.deadline),
       priority: input.priority,
-      subtasks: input.subtasks,
+      subtasks: subtasks,
       notes: input.notes,
     };
 
@@ -103,14 +103,14 @@ export default function TaskForm(props: any) {
       >
         cancel
       </button>
-      <button type="submit" className="btn btn__add">
+      <button type="submit" className="btn btn__add" onClick={handleSubmit}>
         submit
       </button>
     </div>
   );
 
   return (
-    <form onSubmit={handleSubmit} className="input-form">
+    <form className="input-form">
       <label htmlFor="title" className="label_details">
         title
         <input

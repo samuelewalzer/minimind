@@ -8,28 +8,23 @@ export default function SubTaskItem(props) {
   const { setDetailsView, viewMode } = useViewService();
   const [subtaskName, setSubtaskName] = useState(props.subtask.name);
 
-  function toggleTaskCompleted() {
-    const toggledTask: Subtask = {
-      id: props.currentTask.id,
-      completed: !props.currentTask.completed,
-      name: props.currentTask.name,
-      pentTask: props.currentTask.parentTask,
-    };
-    window.api.editSubtask(toggledTask);
+  function handleChange(e) {
+    setSubtaskName(e.target.value);
   }
 
-function handleChange() {
-  setSubtaskName(e.target.value);
-}
+  function toggleSubtask() {
+    const updatedSubtask = {...props.subtask, completed: !props.subtask.completed};
+    window.api.editSubtask(updatedSubtask);
+  }
 
   //When in details mode, display the subtask items with a checkbox
   const detailsTemplate = (
-    <div className="c-cb" onClick={() => setDetailsView(props.currentTask)}>
+    <div className="c-cb">
       <input
         id={props.subtask.id}
         type="checkbox"
         defaultChecked={props.subtask.completed}
-        onClick={toggleTaskCompleted}
+        onClick={toggleSubtask}
       />
       <label className="todo-label" htmlFor={props.subtask.id}>
         <span>{props.subtask.name}</span>
@@ -49,10 +44,15 @@ function handleChange() {
           placeholder={subtaskName}
           value={subtaskName}
           onChange={handleChange}
-          />
-        <button type="button" className="btn" onClick={() => props.delete(props.subtask.id)}>
+          onBlur={() => props.editSubtask(props.subtask.id, subtaskName)}
+        />
+        <button
+          type="button"
+          className="btn"
+          onClick={() => props.deleteSubtask(props.subtask.id)}
+        >
           {/* TODO: Add edit button and delete onBlur handler */}
-        <FontAwesomeIcon icon={faTrashCan} style={{color: "#ff2600",}} />
+          <FontAwesomeIcon icon={faTrashCan} style={{ color: "#ff2600" }} />
         </button>
       </div>
     </>

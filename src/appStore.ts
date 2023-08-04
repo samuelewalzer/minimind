@@ -13,6 +13,7 @@ export interface Subtask {
     completed: boolean;
     name: string;
     parentTaskId: Task['id'];
+    deleted?: boolean;
 }
 
 export interface AppStore {

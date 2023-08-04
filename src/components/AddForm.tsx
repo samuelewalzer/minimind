@@ -65,7 +65,7 @@ export default function AddForm() {
           value={input.name}
           onChange={handleChange}
         />
-        <SmartInput smartResponse={smartResponse} setSmartResponse={setSmartResponse}/>
+        <SmartInput smartResponse={smartResponse} setSmartResponse={setSmartResponse} setSubtasks={setSubtasks} parentTaskId={input.id}/>
         </label>
       <div>
         <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id}/>
