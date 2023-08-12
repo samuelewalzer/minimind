@@ -4,7 +4,7 @@ import { Subtask, Task } from "./appStore";
 
 const { ipcRenderer, contextBridge } = require("electron");
 
-contextBridge.exposeInMainWorld('versions', {
+contextBridge.exposeInMainWorld("versions", {
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron,
@@ -16,14 +16,16 @@ declare global {
       // Tasks
       addTask: (task: Task) => void;
       getTasks: () => Promise<Task[]>;
+      toggleTaskCompletion: (taskId: string, completedStatus: string) => void;
       deleteTask: (taskId: string) => void;
       editTask: (task: Task) => void;
 
       // Subtasks
-      addSubtask: (subtask: Subtask) => void;
-      deleteSubtask: (subtaskId: string) => void;
-      editSubtask: (subtask: Subtask) => void;
+      toggleSubtaskCompletion: (taskId: string, completedStatus: string) => void;
       getSubtasksFromParent: (parentTaskId: string) => Promise<Subtask[]>;
+
+      // Gamification api
+      getCompletedTodayCount: () => Promise<number>;
 
       // SmartInput
       // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
@@ -46,6 +48,10 @@ contextBridge.exposeInMainWorld("api", {
     await ipcRenderer.invoke("EDIT_TASK", task);
   },
 
+  toggleTaskCompletion: async (taskId: string, completedStatus: string) => {
+    await ipcRenderer.invoke("TOGGLE_TASK_COMPLETED", taskId, completedStatus);
+  },
+
   deleteTask: async (taskId: string) => {
     await ipcRenderer.invoke("DELETE_TASK", taskId);
   },
@@ -59,12 +65,17 @@ contextBridge.exposeInMainWorld("api", {
     await ipcRenderer.invoke("DELETE_TASK", taskId);
   },
 
-  editSubtask: async (subtask: Subtask) => {
-    await ipcRenderer.invoke("EDIT_SUBTASK", subtask);
-  },
-
   getSubtasksFromParent: async (parentTaskId: string) => {
     return await ipcRenderer.invoke("GET_SUBTASKS_FROM_PARENT", parentTaskId);
+  },
+
+  toggleSubtaskCompletion: async (subtaskId: string, completedStatus: string) => {
+    return await ipcRenderer.invoke("TOGGLE_SUBTASK_COMPLETION", subtaskId, completedStatus);
+  },
+
+  // Bridge for gamification
+  getCompletedTodayCount: async () => {
+    return await ipcRenderer.invoke("GET_COMPLETED_TODAY_COUNT");
   },
 
   // Bridge for SmartResponse

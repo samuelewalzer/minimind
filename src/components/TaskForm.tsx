@@ -4,38 +4,59 @@ import { useViewService } from "../viewService";
 import SubtaskContainer from "./SubtaskContainer";
 
 // Form for viewing details of a task and editing it
-export default function TaskForm(props: any) {
-  const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView } = useViewService();
+export default function TaskForm(props) {
+  const { viewMode, currentTask, setEditView, setDefaultView } = useViewService();
   const [subtasks, setSubtasks] = useState([]);
+  const debug = 0;
 
   const [input, setInput] = useState({
     name: "",
-    deadline: new Date(),
+    deadline: "",
     priority: "",
     subtasks: [],
     notes: "",
   });
 
+  // every time the current task changes, we set the inputs of the form new
   useEffect(() => {
     setInput({
       name: currentTask.name,
-      deadline: new Date(currentTask.deadline),
+      deadline: currentTask.deadline,
       priority: currentTask.priority,
-      subtasks: currentTask.subtasks,
+      subtasks: subtasks,
       notes: currentTask.notes,
     });
   }, [currentTask]);
 
-  const year = input.deadline.getFullYear();
-  const month = (input.deadline.getMonth() + 1).toString().padStart(2, "0");
-  const day = input.deadline.getDate().toString().padStart(2, "0");
-  const dateString = `${year}-${month}-${day}`;
+  // every time we set a new currenttask, fetch the subtasks of given task
+  useEffect(() => {
+    async function fetchSubtasks() {
+      try {
+        {debug ? console.log("(TaskForm) currentTask: ", currentTask) : null}
+        const response = await window.api.getSubtasksFromParent(currentTask.id);
+        console.log("(TaskForm) response: ", response);
+        setSubtasks(response);
+      } catch (error) {
+        console.log("Error fetching subtasks:", error);
+      }
+    }
+    fetchSubtasks();
+  }, [currentTask]);
+
+  const [dateString, setDateString] = useState("");
+  useEffect(() => {
+    const date = new Date(input.deadline);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    setDateString(`${year}-${month}-${day}`);
+  }, [input.deadline]);
 
   function handleChange(e: any) {
     if (e.target.id === "deadline") {
       setInput({
         ...input,
-        deadline: new Date(e.target.value),
+        deadline: e.target.value,
       });
       return;
     }
@@ -45,18 +66,6 @@ export default function TaskForm(props: any) {
     });
   }
 
-  useEffect(() => {
-    async function fetchSubtasks() {
-      try {
-        const response = await window.api.getSubtasksFromParent(currentTask.id);
-        setSubtasks(response);
-      } catch (error) {
-        console.log("Error fetching subtasks:", error);
-      }
-    }
-    fetchSubtasks();
-  }, [input]);
-
   function handleSubmit(e) {
     if (!input.name) {
       alert("Please enter a task name");
@@ -65,16 +74,19 @@ export default function TaskForm(props: any) {
     e.preventDefault();
     const editedTask: Task = {
       id: currentTask.id,
-      completed: currentTask.completed,
+      createdDate: currentTask.createdDate,
       name: input.name,
-      deadline: new Date(input.deadline),
+      completed: currentTask.completed,
+      completedDate: currentTask.completedDate,
+      deadline: input.deadline,
       priority: input.priority,
       subtasks: subtasks,
       notes: input.notes,
     };
 
     window.api.editTask(editedTask);
-    setDetailsView(currentTask);
+    setSubtasks([]);
+    setDefaultView();
   }
 
   function handleDelete(e) {
@@ -110,8 +122,8 @@ export default function TaskForm(props: any) {
   );
 
   return (
-    <form className="input-form">
-      <label htmlFor="title" className="label_details">
+    <form onSubmit={handleSubmit} className="input-form">
+      <label htmlFor="title" className="label_title" onClick={() => setEditView()}>
         title
         <input
           type="text"
@@ -126,10 +138,10 @@ export default function TaskForm(props: any) {
       </label>
       <div>
         <div>
-        <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} />
+        <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={currentTask.id}/>
       </div>
       <div className="input-group">
-        <label htmlFor="deadline" className="label_details">
+        <label htmlFor="deadline" className="label_title">
           deadline
           <input
             type="date"
@@ -140,7 +152,7 @@ export default function TaskForm(props: any) {
             onChange={handleChange}
           />
         </label>
-        <label htmlFor="priority" className="label_details">
+        <label htmlFor="priority" className="label_title">
           priority
           <select
             name="priority"
@@ -158,7 +170,7 @@ export default function TaskForm(props: any) {
       </div>
       </div>
       <div>
-        <label htmlFor="notes" className="label_details">
+        <label htmlFor="notes" className="label_title">
           notes
           <input
             type="text"
@@ -172,11 +184,10 @@ export default function TaskForm(props: any) {
           />
         </label>
       </div>
-      {viewMode === "edit"
-        ? editTemplate
-        : viewMode === "details"
-        ? viewTemplate
+      {viewMode === "edit" ? editTemplate
+        : viewMode === "details" ? viewTemplate
         : null}
     </form>
   );
 }
+

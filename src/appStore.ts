@@ -1,8 +1,10 @@
 export interface Task {
     id: string;
+    createdDate: string;
     completed: boolean;
+    completedDate: string;
     name: string;
-    deadline: Date;
+    deadline: string;
     priority: string;
     subtasks: Subtask[];
     notes: string;
@@ -10,7 +12,9 @@ export interface Task {
 
 export interface Subtask {
     id: string;
+    createdDate: string;
     completed: boolean;
+    completedDate: string;
     name: string;
     parentTaskId: Task['id'];
     deleted?: boolean;

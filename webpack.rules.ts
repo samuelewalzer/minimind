@@ -1,3 +1,4 @@
+import path from 'path';
 import type { ModuleOptions } from 'webpack';
 
 export const rules: Required<ModuleOptions>['rules'] = [
@@ -27,5 +28,12 @@ export const rules: Required<ModuleOptions>['rules'] = [
         transpileOnly: true,
       },
     },
+  },
+  {
+    test: /\.(svg|png|jpg|gif)$/,
+    include: [
+      path.resolve(__dirname, "src/assets")
+    ],
+    type: "asset/inline"
   },
 ];

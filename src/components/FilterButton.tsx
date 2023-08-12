@@ -1,6 +1,6 @@
 import React from "react";
 
-function FilterButton(props) {
+function FilterButton(props: { isPressed: boolean; setFilter: (name: string) => void; name: string}) {
   return (
     <button 
       type="button" 

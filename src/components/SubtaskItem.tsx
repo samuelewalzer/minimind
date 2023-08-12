@@ -1,33 +1,31 @@
-import { Subtask } from "src/appStore";
 import { useViewService } from "../viewService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
 export default function SubTaskItem(props) {
-  const { setDetailsView, viewMode } = useViewService();
-  const [subtaskName, setSubtaskName] = useState(props.subtask.name);
+  const { viewMode } = useViewService();
+  const [subtaskName, setSubtaskName] = useState(props.subtask.name || "");
 
   function handleChange(e) {
     setSubtaskName(e.target.value);
   }
 
-  function toggleSubtask() {
-    const updatedSubtask = {...props.subtask, completed: !props.subtask.completed};
-    window.api.editSubtask(updatedSubtask);
+  function toggleSubtaskCompletion() {
+    window.api.toggleSubtaskCompletion(props.subtask.id, props.subtask.completed);
   }
 
   //When in details mode, display the subtask items with a checkbox
   const detailsTemplate = (
-    <div className="c-cb">
+    <div className="c-cb subtask-item">
       <input
         id={props.subtask.id}
         type="checkbox"
         defaultChecked={props.subtask.completed}
-        onClick={toggleSubtask}
+        onClick={toggleSubtaskCompletion}
       />
-      <label className="todo-label" htmlFor={props.subtask.id}>
-        <span>{props.subtask.name}</span>
+      <label className="todo-label">
+        {props.subtask.name}
       </label>
     </div>
   );
@@ -68,3 +66,4 @@ export default function SubTaskItem(props) {
     </div>
   );
 }
+

@@ -1,28 +1,24 @@
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import { Task } from "../appStore";
+import { Subtask, Task } from "../appStore";
 import { useViewService } from "../viewService";
 import SmartInput from "./SmartInput";
 import SubtaskContainer from "./SubtaskContainer";
 
 export default function AddForm() {
   const { setDefaultView } = useViewService();
-  const [smartResponse, setSmartResponse] = useState({
-    name: String,
-    completed: false,
-    probability: Number,
-    subtasks: [],
-  });
-  const [subtasks, setSubtasks] = useState([]);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
 
-  const [input, setInput] = useState({
+  const [input, setInput] = useState<Task>({
     id: `task-${nanoid()}`,
-    completed: false,
+    createdDate: new Date().toISOString(),
     name: "",
+    completed: false,
+    completedDate: "",
     deadline: new Date().toISOString().substring(0, 10),
     priority: "",
-    notes: "",
     subtasks: subtasks,
+    notes: "",
   });
 
   function handleChange(e: any) {
@@ -30,9 +26,10 @@ export default function AddForm() {
       ...input,
       [e.target.id]: e.target.value,
     });
+    console.log(input);
   }
 
-  function handleSubmit(e) {
+  function handleSubmit(e: { preventDefault: () => void; }) {
     if (!input.name) {
       alert("Please enter a task name");
       return;
@@ -40,21 +37,29 @@ export default function AddForm() {
     e.preventDefault();
     const newTask: Task = {
       id: input.id,
+      createdDate: new Date().toISOString(),
       name: input.name,
       completed: false,
-      deadline: new Date(input.deadline),
+      completedDate: "",
+      deadline: input.deadline,
       priority: input.priority,
       subtasks: subtasks,
       notes: input.notes,
     };
+    // setInput({
+    //   ...input,
+    //   ["subtasks"]: subtasks,
+    // });
+    // console.log(input);
 
     window.api.addTask(newTask);
+    setSubtasks([]);
     setDefaultView();
   }
 
   return (
     <form onSubmit={handleSubmit} className="input-form">
-      <label htmlFor="title">
+      <label htmlFor="title" className="label_title">
         title
         <input
           type="text"
@@ -65,13 +70,17 @@ export default function AddForm() {
           value={input.name}
           onChange={handleChange}
         />
-        <SmartInput smartResponse={smartResponse} setSmartResponse={setSmartResponse} setSubtasks={setSubtasks} parentTaskId={input.id}/>
+        <SmartInput input={input} setSubtasks={setSubtasks} parentTaskId={input.id}/>
         </label>
+
+      {/* subtask container with subtask items and input field to add new tasks*/}
       <div>
         <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id}/>
       </div>
+
+      {/* input form containing settings for deadline and priority */}
       <div className="input-group">
-        <label htmlFor="deadline">
+        <label htmlFor="deadline" className="label_title">
           deadline
           <input
             type="date"
@@ -82,7 +91,7 @@ export default function AddForm() {
             onChange={handleChange}
             />
         </label>   
-        <label htmlFor="priority">
+        <label htmlFor="priority" className="label_title">
           priority
           <select
             name="priority"
@@ -97,8 +106,10 @@ export default function AddForm() {
           </select>
         </label>
       </div>
+
+      {/* input form for notes */}
       <div>
-        <label htmlFor="notes">
+        <label htmlFor="notes" className="label_title">
           notes
           <input
             type="text"
@@ -111,6 +122,8 @@ export default function AddForm() {
           />
         </label>
       </div>
+
+      {/* buttons for adding tasks or cancelling */}
       <div className="btn-group">
         <button
           type="button"
@@ -119,10 +132,11 @@ export default function AddForm() {
         >
           cancel
         </button>
-        <button type="submit" className="btn btn__add">
+        <button type="submit" className="btn btn__add" onClick={handleSubmit}>
           add
         </button>
       </div>
     </form>
   );
 }
+

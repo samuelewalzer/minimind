@@ -1,7 +1,8 @@
 import { nanoid } from "nanoid";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SubtaskItem from "./SubtaskItem";
 import { useViewService } from "../viewService";
+import { Subtask } from "src/appStore";
 
 // This component receives a list of subtasks with properties id, name, completed and parentId
 // handles their view: 
@@ -10,14 +11,9 @@ import { useViewService } from "../viewService";
 
 export default function SubtaskContainer(props) {
   const { viewMode } = useViewService();
-  // const [subtasks, setSubtasks] = useState(props.subtasks);
   const [subtaskName, setSubtaskName] = useState("");
 
-  // useEffect(() => {
-  //     setSubtasks(props.subtasks);
-  // }, [props.subtasks]);
-
-  const subtaskList = props.subtasks.map((subtask) => (
+  const subtaskList = props.subtasks.filter((subtask) => !subtask.deleted && subtask.name).map((subtask) => (
     <SubtaskItem
       key={subtask.id}
       subtask={subtask}
@@ -30,18 +26,18 @@ export default function SubtaskContainer(props) {
   function handleChange(e) {
     setSubtaskName(e.target.value);
   }
-  // When the user submits the form, add the subtask to the database
+  // When adds the subtask, the subtask list in the form gets updated where it is then saved to the db
   function addSubtask(e) {
     if (!subtaskName) {
       alert("Please enter a subtask name");
       return;
     }
     e.preventDefault();
-    const newSubtask = {
+    const newSubtask: Subtask = {
       id: `subtask-${nanoid()}`,
-      completed: false,
+      createdDate: new Date(),
+      completed: 0,
       name: subtaskName,
-      parentTaskId: props.parentTaskId,
     };
     props.setSubtasks([...props.subtasks, newSubtask]);
     setSubtaskName("");
@@ -81,13 +77,16 @@ export default function SubtaskContainer(props) {
 
   return (
     <>
-      <label htmlFor="subtasks" className="label_details">
+    <label htmlFor="subtasks" className="label_title">
         subtasks
       </label>
+      <div className="subtask-container">
       {subtaskList.length > 0 ? subtaskList : <p>No subtasks added</p>}
+    </div>
       <div>
         {viewMode === "add" || viewMode === "edit" ? editAddTemplate : null}
       </div>
     </>
   );
 }
+

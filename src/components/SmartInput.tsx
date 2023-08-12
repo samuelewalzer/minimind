@@ -1,15 +1,10 @@
 import { nanoid } from "nanoid";
-import { useState } from "react";
+import { Subtask } from "../appStore";
 
 export default function SmartInput(props) {
-  const [smartInput, setSmartInput] = useState("");
-
-  function handleChange(e) {
-    setSmartInput(e.target.value);
-  }
 
   function handleClick(e) {
-    if (!smartInput) {
+    if (!props.input) {
       alert("Plase enter a task name");
       return;
     }
@@ -18,60 +13,36 @@ export default function SmartInput(props) {
   }
   
   async function getSmartResponse() {
-    if (!smartInput) {
-      alert("Plase enter a smart task name");
-      return;
-    }
     try {
-      const response = await window.api.addSmartResponse(smartInput);
-      props.setSmartResponse({
-        ...props.smartResponse,
-        name: response.name,
-        completed: response.completed,
-        probability: response.probability,
-        subtasks: response.subtasks,
-      });
-      parseSmartResponse(response)
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  function parseSmartResponse(response) {
-    if (response.subtasks.length > 0) {
-      response.subtasks.forEach((subtask) => {
-        props.setSubtasks((prevSubtasks) => [
+      const response = await window.api.addSmartResponse(props.input);
+      if (response.subtasks.length === 0) {
+        alert("Your task is of optimal length. Our AI doesn't suggest any subtasks");
+      }
+      props.setSubtasks([])
+      response.subtasks.forEach((subtask: Subtask) => {
+        props.setSubtasks((prevSubtasks: []) => [
           ...prevSubtasks,
           {
-            id: `smartsubtask${nanoid()}`,
+            id: `smartsubtask-${nanoid()}`,
             name: subtask.name,
             completed: false,
             parentTaskId: props.parentTaskId,
           },
         ]);
       });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
     }
   }
-
 
   return (
     <>
       <div className="input-container">
-        <input
-          type="text"
-          id="name"
-          className="input input__lg"
-          autoComplete="off"
-          placeholder="SmartInput"
-          value={smartInput}
-          onChange={(handleChange)}
-        />
         <button type="submit" className="btn" onClick={handleClick}>
-          check
+          check subtask suggestions
         </button>
       </div>
-      Subtasks: {}
     </>
   );
 }

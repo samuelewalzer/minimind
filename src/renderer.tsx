@@ -30,16 +30,21 @@ import "./index.css";
 import { createRoot } from "react-dom/client";
 import App from "./app";
 import { ViewServiceProvider } from "./viewService";
-
-console.log(
-  `ℹ️ This app is using Chrome (v${window.versions.chrome()}), Node.js (v${versions.node()}), and Electron (v${versions.electron()})`
-);
+import { Task } from "./appStore";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
   <>
-    <ViewServiceProvider>
+    <ViewServiceProvider currentTask={undefined} viewMode={""} setAddView={function (): void {
+      throw new Error("Function not implemented.");
+    } } setEditView={function (): void {
+      throw new Error("Function not implemented.");
+    } } setDetailsView={function (task: Task): void {
+      throw new Error("Function not implemented.");
+    } } setDefaultView={function (): void {
+      throw new Error("Function not implemented.");
+    } }>
       <App />
     </ViewServiceProvider>
   </>

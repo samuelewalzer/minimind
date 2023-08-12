@@ -10,7 +10,7 @@ const FILTER_MAP = {
 };
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-export default function TaskContainer() {
+export default function TaskContainer(props) {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("All");
   const { setAddView } = useViewService();
@@ -35,6 +35,7 @@ export default function TaskContainer() {
       <TaskItem
         currentTask = {task}
         key={task.id}
+        currentTaskId={props.currentTaskId}
       />
     ));
 
@@ -71,3 +72,4 @@ export default function TaskContainer() {
     </>
   );
 }
+

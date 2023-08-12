@@ -1,20 +1,16 @@
 import { useViewService } from "../viewService";
-import { Task } from "../appStore";
 
 export default function TaskItem(props) {
   const { setDetailsView } = useViewService();
 
-  function toggleTaskCompleted() {
-    const toggledTask: Task = {
-      id: props.currentTask.id,
-      completed: !props.currentTask.completed,
-      name: props.currentTask.name,
-      deadline: new Date(props.currentTask.deadline),
-      priority: props.currentTask.priority,
-      subtasks: props.currentTask.subtasks,
-      notes: props.currentTask.notes,
-    };
-    window.api.editTask(toggledTask);
+  function handleClick(e) {
+    e.stopPropagation();
+    setDetailsView(props.currentTask);
+  }
+
+  function toggleTaskCompletion(e) {
+    e.stopPropagation();
+    window.api.toggleTaskCompletion(props.currentTask.id, props.currentTask.completed);
   }
 
   const date = new Date(props.currentTask.deadline);
@@ -24,26 +20,22 @@ export default function TaskItem(props) {
   const formattedDate = `${day}.${month}.${year}`;
 
   return (
-    <div className="stack-small">
-      <div className="c-cb" onClick={() => setDetailsView(props.currentTask)}>
+    <div className="stack-small" onClick={handleClick}>
+      <div className="c-cb left-section">
         <input
           id={props.currentTask.id}
           type="checkbox"
           defaultChecked={props.currentTask.completed}
-          onClick={toggleTaskCompleted}
+          onClick={toggleTaskCompletion}
         />
-
-          <label className="" htmlFor={props.currentTask.id}>
-            <span>{props.currentTask.name}</span>
-          </label>
-          <label
-            className="todo-label"
-            htmlFor={props.currentTask.deadline}
-          >
-            <span>{formattedDate}</span>
-          </label>
-
+        <label className="todo-label">
+          {props.currentTask.name}
+        </label>
+        <label className="todo-label">
+          {props.currentTask.deadline === null || props.currentTask.deadline === "" ? "" : formattedDate}
+        </label>
       </div>
+      <div></div>
     </div>
   );
 }
