@@ -15,6 +15,10 @@ body {
   font-weight: bold;
 }
 
+p {
+  font-family: 'Courier New', Courier, monospace;
+}
+
 select {
   -webkit-appearance: none;
   -moz-appearance: none;

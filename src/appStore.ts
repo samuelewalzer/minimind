@@ -30,7 +30,6 @@ export const appStore: AppStore = {
 
 export interface SubtaskSuggestion {
     name: string;
-    probability: number;
 }
 
 export interface SmartResponse {

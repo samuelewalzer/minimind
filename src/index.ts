@@ -128,9 +128,10 @@ ipcMain.handle("ADD_SMART_RESPONSE", async (event, input) => {
       max_tokens: 200,
     });
     const response = completion.data.choices[0].message.content;
-    console.log("index.ts) Reponse: ", response);
     const data = JSON.parse(response);
-    return db.addSmartResponse(data);
+    console.log("index.ts) Data: ", data);
+    db.addSmartResponse(data);
+    return data
   } catch (error) {
     if (error.response) {
       console.log("index.ts) ", error.response.status);

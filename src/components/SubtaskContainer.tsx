@@ -13,7 +13,7 @@ export default function SubtaskContainer(props: { subtasks: Subtask[]; setSubtas
   const { viewMode } = useViewService();
   const [subtaskName, setSubtaskName] = useState("");
 
-  const subtaskList = props.subtasks.filter((subtask: Subtask) => !subtask.deleted && subtask.name).map((subtask: Subtask) => (
+  const subtaskList = props.subtasks.filter((subtask) => !subtask.deleted && subtask.name).map((subtask) => (
     <SubtaskItem
       key={subtask.id}
       subtask={subtask}
@@ -48,6 +48,7 @@ export default function SubtaskContainer(props: { subtasks: Subtask[]; setSubtas
     const updatedSubtasks = props.subtasks.map((subtask: Subtask) => 
       subtask.id === subtaskId ? {...subtask, deleted: true} : subtask
     );
+    console.log("subtaskcontainer; ", updatedSubtasks)
     props.setSubtasks(updatedSubtasks);
   }
 

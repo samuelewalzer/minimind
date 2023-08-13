@@ -67,6 +67,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
     if (!input.name) {
       alert("Please enter a task name");
     }
+    console.log("subtasks: ", subtasks)
     e.preventDefault();
     const editedTask: Task = {
       id: currentTask.id,

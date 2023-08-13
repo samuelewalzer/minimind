@@ -55,17 +55,9 @@ export default function AddForm() {
     <form onSubmit={handleSubmit} className="input-form">
       <label htmlFor="title" className="label_title">
         title
-        <input
-          type="text"
-          id="name"
-          className="input input__lg"
-          autoComplete="off"
-          placeholder="Type your task title here"
-          value={input.name}
-          onChange={handleChange}
-        />
-        <SmartInput input={input} subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id}/>
         </label>
+        <SmartInput input={input} subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id} handleChange={handleChange}/>
+        <p style={{color:"red"}}>Remember: try to make your tasks around 30 minutes long. Otherwise, create subtasks manually or using the AI</p>
 
       {/* subtask container with subtask items and input field to add new tasks*/}
       <div>
