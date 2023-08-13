@@ -37,7 +37,7 @@ export default function AddForm() {
     e.preventDefault();
     const newTask: Task = {
       id: input.id,
-      createdDate: new Date().toISOString(),
+      createdDate: input.createdDate,
       name: input.name,
       completed: false,
       completedDate: "",

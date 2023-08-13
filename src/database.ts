@@ -21,9 +21,10 @@ class Database {
     this.db.run(`
       CREATE TABLE IF NOT EXISTS tasks (
         id TEXT PRIMARY KEY,
+        createdDate TEXT,
+        name TEXT,
         completed INTERGER DEFAULT 0,
         completedDate TEXT,
-        name TEXT,
         deadline TEXT,
         priority TEXT,
         subtasks LIST,
@@ -36,9 +37,10 @@ class Database {
     this.db.run(`
       CREATE TABLE IF NOT EXISTS subtasks (
         id TEXT PRIMARY KEY,
+        createdDate TEXT,
+        name TEXT,
         completed INTERGER DEFAULT 0,
         completedDate TEXT,
-        name TEXT,
         parentTaskId TEXT,
         FOREIGN KEY (parentTaskId) REFERENCES tasks(id) ON DELETE CASCADE
       )
@@ -55,7 +57,7 @@ class Database {
     `);
   }
 
-  // methods for Tasks
+  // METHODS FOR TASKS
   async addTask(task: Task): Promise<void> {
     try {
       console.log("database.ts - Task received:", task);
@@ -64,10 +66,11 @@ class Database {
       await new Promise((resolve, reject) => {
         this.db.run(
           `
-        INSERT INTO tasks (id, completed, name, deadline, priority, subtasks, notes) VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO tasks (id, createdDate, completed, name, deadline, priority, subtasks, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `,
           [
             task.id,
+            task.createdDate,
             task.completed,
             task.name,
             task.deadline,
@@ -89,9 +92,9 @@ class Database {
         await new Promise((resolve, reject) => {
           this.db.run(
             `
-          INSERT INTO subtasks (id, completed, name, parentTaskId) VALUES (?, ?, ?, ?)
+          INSERT INTO subtasks (id, createdDate, completed, name, parentTaskId) VALUES (?, ?, ?, ?, ?)
           `,
-            [subtask.id, subtask.completed, subtask.name, task.id],
+            [subtask.id, new Date(), subtask.completed, subtask.name, task.id],
             (error) => {
               if (error) {
                 reject(error);
@@ -175,12 +178,7 @@ class Database {
               `
               INSERT INTO subtasks (id, completed, name, parentTaskId) VALUES (?, ?, ?, ?)
               `,
-              [
-                id,
-                subtask.completed,
-                subtask.name,
-                updatedTask.id,
-              ],
+              [id, subtask.completed, subtask.name, updatedTask.id],
               (error) => {
                 if (error) {
                   reject(error);
@@ -256,11 +254,68 @@ class Database {
       );
     });
   }
+  // async getTasks(): Promise<Task[]> {
+  //   return new Promise((resolve, reject) => {
+  //     const query = `
+  //       SELECT
+  //         tasks.id AS taskId,
+  //         tasks.createdDate
+  //         tasks.name AS taskName,
+  //         tasks.completed AS taskCompleted,
+  //         tasks.completedDate AS taskCompletedDate,
+  //         tasks.deadline AS taskDeadline,
+  //         tasks.priority AS taskPriority,
+  //         tasks.notes AS taskNotes,
+  //         subtasks.id AS subtaskId,
+  //         subtasks.completed AS subtaskCompleted,
+  //         subtasks.completedDate AS subtaskCompletedDate,
+  //         subtasks.name AS subtaskName
+  //       FROM tasks
+  //       LEFT JOIN subtasks ON tasks.id = subtasks.parentTaskId;
+  //     `;
 
-  async toggleTaskCompletion(
-    taskId: string,
-    completedStatus: string
-  ): Promise<void> {
+  //     this.db.all(query, [], (error, rows) => {
+  //       if (error) {
+  //         reject(error);
+  //         return;
+  //       }
+  //       console.log(rows);
+  //       // Process the result to group tasks with their subtasks
+  //       const tasksMap = new Map<string, Task>();
+  //       for (const row of rows) {
+  //         if (!tasksMap.has(row.taskId)) {
+  //           tasksMap.set(row.taskId, {
+  //             id: row.taskId,
+  //             createdDate: row.createdDate,
+  //             name: row.taskName,
+  //             completed: row.taskCompleted,
+  //             completedDate: row.taskCompletedDate,
+  //             deadline: row.taskDeadline,
+  //             priority: row.taskPriority,
+  //             subtasks: [],
+  //             notes: row.taskNotes
+  //           });
+  //         }
+
+  //         if (row.subtaskId) {
+  //           const subtask: Subtask = {
+  //             id: row.subtaskId,
+  //             createdDate: row.createdDate,
+  //             name: row.subtaskName,
+  //             completed: row.subtaskCompleted,
+  //             completedDate: row.subtaskCompletedDate,
+  //             parentTaskId: row.taskId
+  //           };
+  //           tasksMap.get(row.taskId).subtasks.push(subtask);
+  //         }
+  //       }
+
+  //       resolve([...tasksMap.values()]);
+  //     });
+  //   });
+  // }
+
+  async toggleTaskCompletion(taskId: string, completedStatus: boolean): Promise<void> {
     const newCompletionStatus = !completedStatus;
     console.log("old completion status: ", completedStatus);
     console.log("new Completion status: ", newCompletionStatus);
@@ -306,35 +361,44 @@ class Database {
     });
   }
 
-  // methods for Subtasks
-
-  async toggleSubtaskCompletion(
-    taskId: string,
-    completedStatus: string
-  ): Promise<void> {
-    const newCompletionStatus = !completedStatus;
-    console.log("old completion status: ", completedStatus);
-    console.log("new Completion status: ", newCompletionStatus);
-    const completedDate = newCompletionStatus ? new Date().toISOString() : null;
-    const existsInSubtasks = await this.idExistsInSubtasks(taskId);
-
-    if (!existsInSubtasks) {
-      console.error(`${taskId} not found in tasks table.`);
-      return;
-    }
-
+  // function to know if task has checkbox or icon to visualize whether it has subtasks or not
+  async taskHasSubtasks(taskId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.db.run(
-        "UPDATE subtasks SET completed = ?, completedDate = ? WHERE id = ?",
-        [newCompletionStatus, completedDate, taskId],
-        (error) => {
+      const query = `
+            SELECT COUNT(*) as count FROM subtasks WHERE parentTaskId = ?
+        `;
+
+      this.db.get(
+        `
+          SELECT COUNT(*) as count FROM subtasks WHERE parentTaskId = ?
+          `,
+        [taskId],
+        (error, row) => {
+          if (error) {
+            reject(error);
+            return;
+          } else {
+            resolve(row.count > 0);
+          }
+        }
+      );
+    });
+  }
+
+  // METHODS FOR SUBTASKS
+
+  async getSubtaskById(subtaskId: string): Promise<Subtask> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        `
+        SELECT * FROM subtasks WHERE id = ?
+        `,
+        [subtaskId],
+        (error, subtask) => {
           if (error) {
             reject(error);
           } else {
-            console.log(
-              `${taskId} toggled successfully with date: ${completedDate}`
-            );
-            resolve();
+            resolve(subtask);
           }
         }
       );
@@ -344,7 +408,9 @@ class Database {
   private async idExistsInSubtasks(subtaskId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.db.get(
-        "SELECT id FROM subtasks WHERE id = ?",
+        `
+        SELECT id FROM subtasks WHERE id = ?
+        `,
         [subtaskId],
         (error, row) => {
           if (error) {
@@ -360,7 +426,9 @@ class Database {
   getSubtasksFromParent(parentTaskId: string): Promise<Subtask[]> {
     return new Promise((resolve, reject) => {
       this.db.all(
-        "SELECT * FROM subtasks WHERE parentTaskId = ?",
+        `
+        SELECT * FROM subtasks WHERE parentTaskId = ?
+        `,
         [parentTaskId],
         (error: Error | null, rows: any[]) => {
           if (error) {
@@ -373,7 +441,103 @@ class Database {
     });
   }
 
-  // Function for gamification
+  async toggleSubtaskCompletion(taskId: string): Promise<void> {
+    const subtaskInDb = await this.getSubtaskById(taskId);
+    const newCompletionStatus = !subtaskInDb.completed;
+    console.log("old subtask completion status: ", subtaskInDb.completed);
+    console.log("new subtask Completion status: ", newCompletionStatus);
+    const completedDate = newCompletionStatus ? new Date().toISOString() : null;
+
+    if (!subtaskInDb) {
+      console.error(`${taskId} not found in tasks table.`);
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `
+        UPDATE subtasks SET completed = ?, completedDate = ? WHERE id = ?
+        `,
+        [newCompletionStatus, completedDate, taskId],
+        (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            this.checkAllSubtasksCompleted(subtaskInDb.parentTaskId);
+            console.log(
+              `${taskId} toggled successfully with date: ${completedDate}`
+            );
+            resolve();
+          }
+        }
+      );
+    });
+  }
+
+  // METHODS FOR TOGGLING BEHAVIOR
+
+  // checks if all subtasks of a task are completed and if so, toggle the parent task to completed
+  private async checkAllSubtasksCompleted(parentTaskId: string) {
+    const completedCount = await this.countCompletedSubtasksForParent(
+      parentTaskId
+    );
+    const totalCount = await this.countAllSubtasksForParent(parentTaskId);
+
+    console.log("completed count: ", completedCount);
+    console.log("total count: ", totalCount);
+
+    if (completedCount === totalCount) {
+      await this.toggleTaskCompletion(parentTaskId, 0);
+    } else {
+      await this.toggleTaskCompletion(parentTaskId, 1);
+    }
+  }
+
+  // helper for checkAllSubtasksCompleted
+  // to check if all subtasks are completed, we must know the count of how many subtasks are completed
+  private async countCompletedSubtasksForParent(
+    parentId: string
+  ): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        `
+        SELECT COUNT(*) as count FROM subtasks WHERE parentTaskId = ? AND completed = 1
+        `,
+        [parentId],
+        (error, count) => {
+          if (error) {
+            reject(error);
+            return;
+          } else {
+            resolve(count.count);
+          }
+        }
+      );
+    });
+  }
+
+  // helper for checkAllSubtasksCompleted
+  // to check if all subtasks are completed, we must know how many subtasks the task has in total
+  private async countAllSubtasksForParent(parentId: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        `
+        SELECT COUNT(*) as count FROM subtasks WHERE parentTaskId = ?
+        `,
+        [parentId],
+        (error, count) => {
+          if (error) {
+            reject(error);
+            return;
+          } else {
+            resolve(count.count);
+          }
+        }
+      );
+    });
+  }
+
+  // FUNCTIONS FOR GAMIFICATION
   async getCompletedTodayCount(): Promise<number> {
     const today = new Date();
     const startDate = new Date(
@@ -390,7 +554,9 @@ class Database {
     return new Promise((resolve, reject) => {
       // Count tasks completed today
       this.db.get(
-        "SELECT COUNT(*) as count FROM tasks WHERE completedDate >= ? AND completedDate < ?",
+        `
+        SELECT COUNT(*) as count FROM tasks WHERE completedDate >= ? AND completedDate < ?
+        `,
         [startDate, endDate],
         (error, taskRow) => {
           if (error) {
@@ -400,7 +566,9 @@ class Database {
 
           // Count subtasks completed today
           this.db.get(
-            "SELECT COUNT(*) as count FROM subtasks WHERE completedDate >= ? AND completedDate < ?",
+            `
+            SELECT COUNT(*) as count FROM subtasks WHERE completedDate >= ? AND completedDate < ?
+            `,
             [startDate, endDate],
             (subtaskError, subtaskRow) => {
               if (subtaskError) {
@@ -418,7 +586,7 @@ class Database {
     });
   }
 
-  // Functions for Smart Responses
+  // METHODS FOR SMARTRESPONSE
   addSmartResponse(data: SmartResponse): Promise<SmartResponse> {
     return new Promise((resolve, reject) => {
       const id = `smartResponse-${nanoid()}`;

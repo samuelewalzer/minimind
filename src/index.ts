@@ -80,12 +80,16 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle("TASK_HAS_SUBTASKS", async (event, taskId) => {
+  return db.taskHasSubtasks(taskId);
+})
+
 // Handler for Subtasks
 
 ipcMain.handle(
   "TOGGLE_SUBTASK_COMPLETION",
-  async (event, subtaskId, completedStatus) => {
-    db.toggleSubtaskCompletion(subtaskId, completedStatus);
+  async (event, subtaskId) => {
+    db.toggleSubtaskCompletion(subtaskId);
   }
 );
 

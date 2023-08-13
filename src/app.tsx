@@ -69,7 +69,6 @@ export default function App() {
             tasks={tasks}
             setTasks={setTasks}
             currentTaskId={currentTaskId}
-            setCurrentTaskId={setCurrentTaskId}
           />
         </div>
         <div style={{ flex: 1 }}>

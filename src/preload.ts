@@ -19,9 +19,11 @@ declare global {
       toggleTaskCompletion: (taskId: string, completedStatus: string) => void;
       deleteTask: (taskId: string) => void;
       editTask: (task: Task) => void;
+      taskHasSubtasks: (taskId: string) => Promise<boolean> 
+
 
       // Subtasks
-      toggleSubtaskCompletion: (taskId: string, completedStatus: string) => void;
+      toggleSubtaskCompletion: (taskId: string) => void;
       getSubtasksFromParent: (parentTaskId: string) => Promise<Subtask[]>;
 
       // Gamification api
@@ -56,6 +58,11 @@ contextBridge.exposeInMainWorld("api", {
     await ipcRenderer.invoke("DELETE_TASK", taskId);
   },
 
+  taskHasSubtasks: async (taskId: string) => {
+    return await ipcRenderer.invoke("TASK_HAS_SUBTASKS", taskId);
+  },
+
+
   // Bridges for Subtasks
   addSubtask: async (subtask: Subtask) => {
     await ipcRenderer.invoke("ADD_SUBTASK", subtask);
@@ -69,8 +76,8 @@ contextBridge.exposeInMainWorld("api", {
     return await ipcRenderer.invoke("GET_SUBTASKS_FROM_PARENT", parentTaskId);
   },
 
-  toggleSubtaskCompletion: async (subtaskId: string, completedStatus: string) => {
-    return await ipcRenderer.invoke("TOGGLE_SUBTASK_COMPLETION", subtaskId, completedStatus);
+  toggleSubtaskCompletion: async (subtaskId: string) => {
+    return await ipcRenderer.invoke("TOGGLE_SUBTASK_COMPLETION", subtaskId);
   },
 
   // Bridge for gamification

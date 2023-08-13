@@ -35,7 +35,6 @@ export default function TaskContainer(props) {
       <TaskItem
         currentTask = {task}
         key={task.id}
-        currentTaskId={props.currentTaskId}
       />
     ));
 

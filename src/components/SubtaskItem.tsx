@@ -12,7 +12,7 @@ export default function SubTaskItem(props) {
   }
 
   function toggleSubtaskCompletion() {
-    window.api.toggleSubtaskCompletion(props.subtask.id, props.subtask.completed);
+    window.api.toggleSubtaskCompletion(props.subtask.id);
   }
 
   //When in details mode, display the subtask items with a checkbox
