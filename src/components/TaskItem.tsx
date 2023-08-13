@@ -1,17 +1,18 @@
-import { faBarsStaggered, faListCheck } from "@fortawesome/free-solid-svg-icons";
+import { faBarsStaggered } from "@fortawesome/free-solid-svg-icons";
 import { useViewService } from "../viewService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
+import { Task } from "../appStore";
 
-export default function TaskItem(props) {
+export default function TaskItem(props: { currentTask: Task; }) {
   const { setDetailsView } = useViewService();
 
-  function handleClick(e) {
+  function handleClick(e: { stopPropagation: () => void; }) {
     e.stopPropagation();
     setDetailsView(props.currentTask);
   }
 
-  function toggleTaskCompletion(e) {
+  function toggleTaskCompletion(e: { stopPropagation: () => void; }) {
     e.stopPropagation();
     window.api.toggleTaskCompletion(
       props.currentTask.id,
@@ -51,7 +52,7 @@ export default function TaskItem(props) {
           <input
             id={props.currentTask.id}
             type="checkbox"
-            disabled={props.currentTask.completed && hasSubtasks ? true : false}
+            disabled={!!(props.currentTask.completed && hasSubtasks)}
             defaultChecked={props.currentTask.completed}
             onClick={toggleTaskCompletion}
           />

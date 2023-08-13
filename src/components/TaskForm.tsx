@@ -4,10 +4,9 @@ import { useViewService } from "../viewService";
 import SubtaskContainer from "./SubtaskContainer";
 
 // Form for viewing details of a task and editing it
-export default function TaskForm(props) {
-  const { viewMode, currentTask, setEditView, setDefaultView } = useViewService();
+export default function TaskForm(props: { disabled: boolean; }) {
+  const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView} = useViewService();
   const [subtasks, setSubtasks] = useState([]);
-  const debug = 0;
 
   const [input, setInput] = useState({
     name: "",
@@ -32,9 +31,7 @@ export default function TaskForm(props) {
   useEffect(() => {
     async function fetchSubtasks() {
       try {
-        {debug ? console.log("(TaskForm) currentTask: ", currentTask) : null}
         const response = await window.api.getSubtasksFromParent(currentTask.id);
-        console.log("(TaskForm) response: ", response);
         setSubtasks(response);
       } catch (error) {
         console.log("Error fetching subtasks:", error);
@@ -52,7 +49,7 @@ export default function TaskForm(props) {
     setDateString(`${year}-${month}-${day}`);
   }, [input.deadline]);
 
-  function handleChange(e: any) {
+  function handleChange(e: { target: { id: string; value: string; }; }) {
     if (e.target.id === "deadline") {
       setInput({
         ...input,
@@ -66,10 +63,9 @@ export default function TaskForm(props) {
     });
   }
 
-  function handleSubmit(e) {
+  function handleSubmit(e: { preventDefault: () => void; }) {
     if (!input.name) {
       alert("Please enter a task name");
-      return;
     }
     e.preventDefault();
     const editedTask: Task = {
@@ -89,7 +85,7 @@ export default function TaskForm(props) {
     setDefaultView();
   }
 
-  function handleDelete(e) {
+  function handleDelete() {
     window.api.deleteTask(currentTask.id);
     setDefaultView();
   }
@@ -98,10 +94,9 @@ export default function TaskForm(props) {
     <div className="btn-group">
       <button type="button" className="btn" onClick={() => setEditView()}>
         edit
-        <span className="visually-hidden">{props.name}</span>
       </button>
       <button type="button" className="btn btn__danger" onClick={handleDelete}>
-        delete <span className="visually-hidden">{props.name}</span>
+        delete
       </button>
     </div>
   );
@@ -111,7 +106,7 @@ export default function TaskForm(props) {
       <button
         type="button"
         className="btn btn__danger"
-        onClick={() => setDefaultView()}
+        onClick={() => setDetailsView(currentTask)}
       >
         cancel
       </button>
@@ -184,10 +179,8 @@ export default function TaskForm(props) {
           />
         </label>
       </div>
-      {viewMode === "edit" ? editTemplate
-        : viewMode === "details" ? viewTemplate
-        : null}
+      {viewMode === "edit" ? editTemplate : null}
+      {viewMode === "details" ? viewTemplate : null}
     </form>
   );
 }
-

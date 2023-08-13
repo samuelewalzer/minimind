@@ -2,12 +2,13 @@ import { useViewService } from "../viewService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { Subtask } from "../appStore";
 
-export default function SubTaskItem(props) {
+export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (subtaskId: string, newName: string) => void; deleteSubtask: (subtaskId: string) => void; }) {
   const { viewMode } = useViewService();
   const [subtaskName, setSubtaskName] = useState(props.subtask.name || "");
 
-  function handleChange(e) {
+  function handleChange(e: { target: { value: string; }; }) {
     setSubtaskName(e.target.value);
   }
 

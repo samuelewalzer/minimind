@@ -61,7 +61,7 @@ ipcMain.handle("ADD_TASK", async (event, task) => {
   db.addTask(task);
 });
 
-ipcMain.handle("GET_TASKS", async (event) => {
+ipcMain.handle("GET_TASKS", async () => {
   return db.getTasks();
 });
 
@@ -98,7 +98,7 @@ ipcMain.handle("GET_SUBTASKS_FROM_PARENT", async (event, parentTaskId) => {
 });
 
 // Handle for gamification
-ipcMain.handle("GET_COMPLETED_TODAY_COUNT", async (event) => {
+ipcMain.handle("GET_COMPLETED_TODAY_COUNT", async () => {
   return db.getCompletedTodayCount();
 });
 
@@ -122,7 +122,7 @@ ipcMain.handle("ADD_SMART_RESPONSE", async (event, input) => {
           role: "system",
           content: `You are a helpful assistant that calculates the probability that the task given by the user can be done within 30 minutes. The probability score X is a number between 0 and 100. If the score X is below 50, split the task into subtasks with names S that take around 30 minutes. create as much as needed. I am going to provide a template for your output. Answer only with the json and no further text. The user gives you the name of the task and nothing more. X is my placeholder for the probability score. S is my placeholder for a name of a subtask suggested by you. T is my placeholder fo the name of the task given by the user. Please preserve the formatting and overall template that i provide. If you don't suggest any subtasks, set an empty array as subtasks. This is the template for your output. The format ismust be a json: {"name":  task T ,"probability":  X ,"subtasks": [{"name": S },...]}`,
         },
-        { role: "user", content: input.name },
+        { role: "user", content: input },
       ],
       temperature: 1,
       max_tokens: 200,

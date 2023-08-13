@@ -1,8 +1,8 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
-import { Subtask, Task } from "./appStore";
+import { SmartResponse, Subtask, Task } from "./appStore";
 
-const { ipcRenderer, contextBridge } = require("electron");
+import { ipcRenderer, contextBridge } from "electron";
 
 contextBridge.exposeInMainWorld("versions", {
   node: () => process.versions.node,
@@ -16,7 +16,7 @@ declare global {
       // Tasks
       addTask: (task: Task) => void;
       getTasks: () => Promise<Task[]>;
-      toggleTaskCompletion: (taskId: string, completedStatus: string) => void;
+      toggleTaskCompletion: (taskId: string, completedStatus: boolean) => void;
       deleteTask: (taskId: string) => void;
       editTask: (task: Task) => void;
       taskHasSubtasks: (taskId: string) => Promise<boolean> 
@@ -31,7 +31,7 @@ declare global {
 
       // SmartInput
       // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
-      addSmartResponse: (input: string) => Promise<string>;
+      addSmartResponse: (input: string) => Promise<SmartResponse>;
     };
   }
 }
@@ -50,7 +50,7 @@ contextBridge.exposeInMainWorld("api", {
     await ipcRenderer.invoke("EDIT_TASK", task);
   },
 
-  toggleTaskCompletion: async (taskId: string, completedStatus: string) => {
+  toggleTaskCompletion: async (taskId: string, completedStatus: boolean) => {
     await ipcRenderer.invoke("TOGGLE_TASK_COMPLETED", taskId, completedStatus);
   },
 

@@ -1,33 +1,32 @@
 import { nanoid } from "nanoid";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import SubtaskItem from "./SubtaskItem";
 import { useViewService } from "../viewService";
-import { Subtask } from "src/appStore";
+import { Subtask } from "../appStore";
 
 // This component receives a list of subtasks with properties id, name, completed and parentId
 // handles their view: 
   // add & edit: enabled input fields with delete function
   // details: task
 
-export default function SubtaskContainer(props) {
+export default function SubtaskContainer(props: { subtasks: Subtask[]; setSubtasks: (arg0: Subtask[]) => void; parentTaskId: string;}) {
   const { viewMode } = useViewService();
   const [subtaskName, setSubtaskName] = useState("");
 
-  const subtaskList = props.subtasks.filter((subtask) => !subtask.deleted && subtask.name).map((subtask) => (
+  const subtaskList = props.subtasks.filter((subtask: Subtask) => !subtask.deleted && subtask.name).map((subtask: Subtask) => (
     <SubtaskItem
       key={subtask.id}
       subtask={subtask}
-      handleChange={handleChange}
       editSubtask={editSubtask}
       deleteSubtask={deleteSubtask}
     />
   ));
 
-  function handleChange(e) {
+  function handleChange(e: { target: { value: SetStateAction<string>; }; }) {
     setSubtaskName(e.target.value);
   }
   // When adds the subtask, the subtask list in the form gets updated where it is then saved to the db
-  function addSubtask(e) {
+  function addSubtask(e: { preventDefault: () => void; }) {
     if (!subtaskName) {
       alert("Please enter a subtask name");
       return;
@@ -35,23 +34,25 @@ export default function SubtaskContainer(props) {
     e.preventDefault();
     const newSubtask: Subtask = {
       id: `subtask-${nanoid()}`,
-      createdDate: new Date(),
-      completed: 0,
       name: subtaskName,
+      createdDate: new Date().toISOString(),
+      completed: false,
+      completedDate: "",
+      parentTaskId: props.parentTaskId,
     };
     props.setSubtasks([...props.subtasks, newSubtask]);
     setSubtaskName("");
   }
 
   function deleteSubtask(subtaskId: string) {
-    const updatedSubtasks = props.subtasks.map((subtask) => 
+    const updatedSubtasks = props.subtasks.map((subtask: Subtask) => 
       subtask.id === subtaskId ? {...subtask, deleted: true} : subtask
     );
     props.setSubtasks(updatedSubtasks);
   }
 
   function editSubtask(subtaskId: string, newName: string) {
-    const updatedSubtasks = props.subtasks.map((subtask) => 
+    const updatedSubtasks = props.subtasks.map((subtask: Subtask) => 
       subtask.id === subtaskId ? {...subtask, name: newName} : subtask
     );
     props.setSubtasks(updatedSubtasks);

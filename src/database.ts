@@ -147,30 +147,16 @@ class Database {
       });
 
       for (const subtask of temporarySubtasks) {
+        const idExistsInSubtasks: boolean = await this.idExistsInSubtasks(
+          subtask.id
+        );
         // if the subtask has an id and is marked deleted, delete it
         if (subtask.deleted) {
-          console.log("(db: editTask) trying to delete subtask");
-          await new Promise((resolve, reject) => {
-            this.db.run(
-              `
-              DELETE FROM subtasks WHERE id = ?
-              `,
-              [subtask.id],
-              (error) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  console.log(
-                    `(db: editTask) Subtask ${subtask.name} deleted (${subtask.id})`
-                  );
-                  resolve(error);
-                }
-              }
-            );
-          });
+          await this.deleteSubtask(subtask.id);
         }
+
         // if the subtask doesn't exist in the db yet, it should be inserted
-        else if (this.idExistsInSubtasks(subtask.id)) {
+        else if (!idExistsInSubtasks) {
           console.log("(db: editTask) trying to insert subtask: ", subtask);
           const id = `subtask-${nanoid()}`;
           await new Promise((resolve, reject) => {
@@ -205,7 +191,9 @@ class Database {
                   reject(error);
                 } else {
                   console.log(
-                    `(db: editTask) Subtask ${subtask.name} edited (${subtask})`
+                    `(db: editTask) Subtask ${
+                      subtask.name
+                    } edited (${JSON.stringify(subtask)})`
                   );
                   resolve(error);
                 }
@@ -244,7 +232,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.all(
         "SELECT * FROM tasks ORDER BY deadline",
-        (error: Error | null, rows: any[]) => {
+        (error: Error | null, rows: Task[]) => {
           if (error) {
             reject(error);
           } else {
@@ -315,7 +303,10 @@ class Database {
   //   });
   // }
 
-  async toggleTaskCompletion(taskId: string, completedStatus: boolean): Promise<void> {
+  async toggleTaskCompletion(
+    taskId: string,
+    completedStatus: boolean
+  ): Promise<void> {
     const newCompletionStatus = !completedStatus;
     console.log("old completion status: ", completedStatus);
     console.log("new Completion status: ", newCompletionStatus);
@@ -364,10 +355,6 @@ class Database {
   // function to know if task has checkbox or icon to visualize whether it has subtasks or not
   async taskHasSubtasks(taskId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const query = `
-            SELECT COUNT(*) as count FROM subtasks WHERE parentTaskId = ?
-        `;
-
       this.db.get(
         `
           SELECT COUNT(*) as count FROM subtasks WHERE parentTaskId = ?
@@ -376,9 +363,8 @@ class Database {
         (error, row) => {
           if (error) {
             reject(error);
-            return;
           } else {
-            resolve(row.count > 0);
+            resolve((row as { count?: number }).count > 0);
           }
         }
       );
@@ -386,6 +372,47 @@ class Database {
   }
 
   // METHODS FOR SUBTASKS
+
+  async deleteSubtask(subtaskId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log("(db: editTask) trying to delete subtask");
+      this.db.run(
+        `
+              DELETE FROM subtasks WHERE id = ?
+              `,
+        [subtaskId],
+        (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(
+              `(db: deleteSubtask) ${subtaskId} deleted`
+            );
+          }
+        }
+      );
+    });
+  }
+
+  // deleteTask(taskId: string): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     console.log("(db deleteTask) trying to delete task");
+  //     this.db.run(
+  //       `
+  //       DELETE FROM tasks WHERE id = ?
+  //       `,
+  //       [taskId],
+  //       (error) => {
+  //         if (error) {
+  //           reject(error);
+  //         } else {
+  //           console.log(`db deleteTask) task with id ${taskId} deleted`);
+  //           resolve();
+  //         }
+  //       }
+  //     );
+  //   });
+  // }
 
   async getSubtaskById(subtaskId: string): Promise<Subtask> {
     return new Promise((resolve, reject) => {
@@ -398,7 +425,7 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            resolve(subtask);
+            resolve(subtask as Subtask);
           }
         }
       );
@@ -430,7 +457,7 @@ class Database {
         SELECT * FROM subtasks WHERE parentTaskId = ?
         `,
         [parentTaskId],
-        (error: Error | null, rows: any[]) => {
+        (error: Error | null, rows: Subtask[]) => {
           if (error) {
             reject(error);
           } else {
@@ -487,9 +514,9 @@ class Database {
     console.log("total count: ", totalCount);
 
     if (completedCount === totalCount) {
-      await this.toggleTaskCompletion(parentTaskId, 0);
+      await this.toggleTaskCompletion(parentTaskId, false);
     } else {
-      await this.toggleTaskCompletion(parentTaskId, 1);
+      await this.toggleTaskCompletion(parentTaskId, true);
     }
   }
 
@@ -507,9 +534,8 @@ class Database {
         (error, count) => {
           if (error) {
             reject(error);
-            return;
           } else {
-            resolve(count.count);
+            resolve((count as { count?: number }).count);
           }
         }
       );
@@ -528,9 +554,8 @@ class Database {
         (error, count) => {
           if (error) {
             reject(error);
-            return;
           } else {
-            resolve(count.count);
+            resolve((count as { count?: number }).count);
           }
         }
       );
@@ -577,7 +602,10 @@ class Database {
               }
 
               // Sum the counts and resolve
-              const totalCount = (taskRow.count || 0) + (subtaskRow.count || 0);
+              const totalCount =
+                (taskRow as { count?: number }).count ||
+                0 + (subtaskRow as { count?: number }).count ||
+                0;
               resolve(totalCount);
             }
           );

@@ -21,7 +21,7 @@ export default function AddForm() {
     notes: "",
   });
 
-  function handleChange(e: any) {
+  function handleChange(e: { target: { id: string; value: number | string | boolean; }; }) {
     setInput({
       ...input,
       [e.target.id]: e.target.value,
@@ -32,7 +32,6 @@ export default function AddForm() {
   function handleSubmit(e: { preventDefault: () => void; }) {
     if (!input.name) {
       alert("Please enter a task name");
-      return;
     }
     e.preventDefault();
     const newTask: Task = {
@@ -46,11 +45,6 @@ export default function AddForm() {
       subtasks: subtasks,
       notes: input.notes,
     };
-    // setInput({
-    //   ...input,
-    //   ["subtasks"]: subtasks,
-    // });
-    // console.log(input);
 
     window.api.addTask(newTask);
     setSubtasks([]);
@@ -70,7 +64,7 @@ export default function AddForm() {
           value={input.name}
           onChange={handleChange}
         />
-        <SmartInput input={input} setSubtasks={setSubtasks} parentTaskId={input.id}/>
+        <SmartInput input={input} subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id}/>
         </label>
 
       {/* subtask container with subtask items and input field to add new tasks*/}

@@ -4,7 +4,6 @@ body {
   padding: 2rem;
   width: 100%;
   height: 100%;
-  margin: 0 auto;
 }
 
 #root {
@@ -104,9 +103,6 @@ textarea {
 button,
 input {
   overflow: visible;
-}
-input[type="text"] {
-  border-radius: 1re;
 }
 
 @media screen and (min-width: 620px) {

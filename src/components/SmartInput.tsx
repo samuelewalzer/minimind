@@ -1,9 +1,9 @@
 import { nanoid } from "nanoid";
-import { Subtask } from "../appStore";
+import { Task, Subtask, SmartResponse, SubtaskSuggestion } from "../appStore";
 
-export default function SmartInput(props) {
+export default function SmartInput(props: { input: Task; subtasks: Subtask[], setSubtasks: (arg0: Subtask[]) => void; parentTaskId: string; }) {
 
-  function handleClick(e) {
+  function handleClick(e: { preventDefault: () => void; }) {
     if (!props.input) {
       alert("Plase enter a task name");
       return;
@@ -14,22 +14,26 @@ export default function SmartInput(props) {
   
   async function getSmartResponse() {
     try {
-      const response = await window.api.addSmartResponse(props.input);
-      if (response.subtasks.length === 0) {
-        alert("Your task is of optimal length. Our AI doesn't suggest any subtasks");
+      const response: SmartResponse = await window.api.addSmartResponse(props.input.name);
+      if( response !== null && typeof response === 'object' && 'subtasks' in response) {
+        if ( response.subtasks.length === 0) {
+          alert("Your task is of optimal length. Our AI doesn't suggest any subtasks");
+        }
+        props.setSubtasks([])
+        const newSubtasks = response.subtasks.map((subtask: SubtaskSuggestion) => ({
+          id: `smartsubtask-${nanoid()}`,
+          createdDate: "",
+          name: subtask.name,
+          completed: false,
+          completedDate: "",
+          parentTaskId: props.parentTaskId,
+        }));
+        
+        props.setSubtasks({
+          ...props.subtasks,
+          ...newSubtasks
+        });
       }
-      props.setSubtasks([])
-      response.subtasks.forEach((subtask: Subtask) => {
-        props.setSubtasks((prevSubtasks: []) => [
-          ...prevSubtasks,
-          {
-            id: `smartsubtask-${nanoid()}`,
-            name: subtask.name,
-            completed: false,
-            parentTaskId: props.parentTaskId,
-          },
-        ]);
-      });
       console.log(response);
     } catch (error) {
       console.log(error);

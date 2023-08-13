@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import FilterButton from "./FilterButton";
 import TaskItem from "./TaskItem";
 import { useViewService } from "../viewService";
+import { Task } from "../appStore"
 
 const FILTER_MAP = {
   All: () => true,
-  Active: (task) => !task.completed,
-  Completed: (task) => task.completed,
+  Active: (task: Task) => !task.completed,
+  Completed: (task: Task) => task.completed,
 };
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-export default function TaskContainer(props) {
+export default function TaskContainer() {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("All");
   const { setAddView } = useViewService();
@@ -30,7 +31,7 @@ export default function TaskContainer(props) {
   }, [tasks]);
 
   const taskList = tasks
-    .filter(FILTER_MAP[filter])
+    .filter((task) => FILTER_MAP[filter as keyof typeof FILTER_MAP](task))
     .map((task) => (
       <TaskItem
         currentTask = {task}
