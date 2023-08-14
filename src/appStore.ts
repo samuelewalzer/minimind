@@ -13,9 +13,9 @@ export interface Task {
 export interface Subtask {
     id: string;
     createdDate: string;
+    name: string;
     completed: boolean;
     completedDate: string;
-    name: string;
     parentTaskId: Task['id'];
     deleted?: boolean;
 }

@@ -385,9 +385,8 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            console.log(
-              `(db: deleteSubtask) ${subtaskId} deleted`
-            );
+            console.log(`(db: deleteSubtask) ${subtaskId} deleted`);
+            resolve();
           }
         }
       );

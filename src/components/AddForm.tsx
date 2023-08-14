@@ -21,15 +21,16 @@ export default function AddForm() {
     notes: "",
   });
 
-  function handleChange(e: { target: { id: string; value: number | string | boolean; }; }) {
+  function handleChange(e: {
+    target: { id: string; value: number | string | boolean };
+  }) {
     setInput({
       ...input,
       [e.target.id]: e.target.value,
     });
-    console.log(input);
   }
 
-  function handleSubmit(e: { preventDefault: () => void; }) {
+  function handleSubmit(e: { preventDefault: () => void }) {
     if (!input.name) {
       alert("Please enter a task name");
     }
@@ -53,15 +54,28 @@ export default function AddForm() {
 
   return (
     <form onSubmit={handleSubmit} className="input-form">
+      <p style={{ color: "blue" }}>
+        Remember: try to make your tasks around 30 minutes long. Otherwise,
+        create subtasks manually or using the AI
+      </p>
       <label htmlFor="title" className="label_title">
         title
-        </label>
-        <SmartInput input={input} subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id} handleChange={handleChange}/>
-        <p style={{color:"red"}}>Remember: try to make your tasks around 30 minutes long. Otherwise, create subtasks manually or using the AI</p>
+      </label>
+      <SmartInput
+        smartInput={input.name}
+        subtasks={subtasks}
+        setSubtasks={setSubtasks}
+        parentTaskId={input.id}
+        handleChange={handleChange}
+      />
 
       {/* subtask container with subtask items and input field to add new tasks*/}
       <div>
-        <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={input.id}/>
+        <SubtaskContainer
+          subtasks={subtasks}
+          setSubtasks={setSubtasks}
+          parentTaskId={input.id}
+        />
       </div>
 
       {/* input form containing settings for deadline and priority */}
@@ -75,8 +89,8 @@ export default function AddForm() {
             // TODO: deadline must not necessarily be set
             value={input.deadline}
             onChange={handleChange}
-            />
-        </label>   
+          />
+        </label>
         <label htmlFor="priority" className="label_title">
           priority
           <select
@@ -85,7 +99,7 @@ export default function AddForm() {
             className="input input__lg"
             value={input.priority}
             onChange={handleChange}
-            >
+          >
             <option value="low">low</option>
             <option value="middle">middle</option>
             <option value="high">high</option>
@@ -125,4 +139,3 @@ export default function AddForm() {
     </form>
   );
 }
-

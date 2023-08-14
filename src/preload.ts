@@ -31,7 +31,7 @@ declare global {
 
       // SmartInput
       // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
-      addSmartResponse: (input: string) => Promise<string>;
+      addSmartResponse: (input: string) => Promise<SmartResponse>;
     };
   }
 }
