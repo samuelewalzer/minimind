@@ -1,15 +1,20 @@
 import sqlite3 from "sqlite3";
 import { SmartResponse, Subtask, Task } from "./appStore";
 import { nanoid } from "nanoid";
+import electron from "electron";
+import path = require("path");
 
 class Database {
   private db: sqlite3.Database;
 
-  constructor() {
-    this.db = new sqlite3.Database("./mydatabase.db", (error) => {
+  constructor() { 
+    const userDataPath = (electron.app).getPath('userData');
+const dbPath = path.join(userDataPath, 'mydatabase.db');
+    this.db = new sqlite3.Database(dbPath, (error) => {
       if (error) {
         console.error("Error opening the database:", error);
       } else {
+        console.log()
         this.initTables();
       }
     });
@@ -242,66 +247,6 @@ class Database {
       );
     });
   }
-  // async getTasks(): Promise<Task[]> {
-  //   return new Promise((resolve, reject) => {
-  //     const query = `
-  //       SELECT
-  //         tasks.id AS taskId,
-  //         tasks.createdDate
-  //         tasks.name AS taskName,
-  //         tasks.completed AS taskCompleted,
-  //         tasks.completedDate AS taskCompletedDate,
-  //         tasks.deadline AS taskDeadline,
-  //         tasks.priority AS taskPriority,
-  //         tasks.notes AS taskNotes,
-  //         subtasks.id AS subtaskId,
-  //         subtasks.completed AS subtaskCompleted,
-  //         subtasks.completedDate AS subtaskCompletedDate,
-  //         subtasks.name AS subtaskName
-  //       FROM tasks
-  //       LEFT JOIN subtasks ON tasks.id = subtasks.parentTaskId;
-  //     `;
-
-  //     this.db.all(query, [], (error, rows) => {
-  //       if (error) {
-  //         reject(error);
-  //         return;
-  //       }
-  //       console.log(rows);
-  //       // Process the result to group tasks with their subtasks
-  //       const tasksMap = new Map<string, Task>();
-  //       for (const row of rows) {
-  //         if (!tasksMap.has(row.taskId)) {
-  //           tasksMap.set(row.taskId, {
-  //             id: row.taskId,
-  //             createdDate: row.createdDate,
-  //             name: row.taskName,
-  //             completed: row.taskCompleted,
-  //             completedDate: row.taskCompletedDate,
-  //             deadline: row.taskDeadline,
-  //             priority: row.taskPriority,
-  //             subtasks: [],
-  //             notes: row.taskNotes
-  //           });
-  //         }
-
-  //         if (row.subtaskId) {
-  //           const subtask: Subtask = {
-  //             id: row.subtaskId,
-  //             createdDate: row.createdDate,
-  //             name: row.subtaskName,
-  //             completed: row.subtaskCompleted,
-  //             completedDate: row.subtaskCompletedDate,
-  //             parentTaskId: row.taskId
-  //           };
-  //           tasksMap.get(row.taskId).subtasks.push(subtask);
-  //         }
-  //       }
-
-  //       resolve([...tasksMap.values()]);
-  //     });
-  //   });
-  // }
 
   async toggleTaskCompletion(
     taskId: string,
