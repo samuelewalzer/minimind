@@ -82,7 +82,6 @@ export default function SmartInput(props: {
         showDialog: true,
         showConfirmButton: false,
       })
-      window.confirm(`The AI suggest to split up the task. Here are some suggestions: \n${subtaskNames}However, these are still too big so use them as suggestion for a task title`)
     } else {
       setConfirmation({
         title: "Your task is big!",
@@ -93,25 +92,30 @@ export default function SmartInput(props: {
     }
   }
 
+  function handleConfirm() {
+    setConfirmation({
+      ...confirmation,
+      showDialog: false
+    });
+    props.setSubtasks([...props.subtasks, ...tempSubtasks]);
+  }
+
+  function handleCancel() {
+    setConfirmation({
+      ...confirmation,
+      showDialog: false
+    });
+  }
+
   return (
       <><ConfirmDialog
       isOpen={confirmation.showDialog}
       title={confirmation.title}
       message={confirmation.message}
       showConfirmButton={confirmation.showConfirmButton}
-      onConfirm={() => {
-        setConfirmation({
-          ...confirmation,
-          showDialog: false
-        });
-        props.setSubtasks([...props.subtasks, ...tempSubtasks]);
-      } }
-      onCancel={() => {
-        setConfirmation({
-          ...confirmation,
-          showDialog: false
-        });
-      } } /><div className={isLoading ? "loading-cursor" : ""}>
+      onConfirm={handleConfirm}
+      onCancel={handleCancel} />
+      <div className={isLoading ? "loading-cursor" : ""}>
         <input
           type="text"
           id="name"

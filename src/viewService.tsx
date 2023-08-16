@@ -31,7 +31,7 @@ export const useViewService = (): ViewService => {
 
 export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
 
-  const [viewMode, setViewMode] = useState(ViewMode.DEFAULT);
+  const [viewMode, setViewMode] = useState(ViewMode.VIEW);
   const [currentTask, setCurrentTask] = useState<Task>({
     id: "",
     createdDate: "",

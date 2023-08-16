@@ -53,9 +53,13 @@ export default function AddForm() {
     setDefaultView();
   }
 
+  function handleCancel() {
+    setDefaultView();
+  }
+
   return (
     <form onSubmit={handleSubmit} className="input-form">
-      <p style={{ color: "blue" }}>
+      <p className="taskSize-hint">
         Remember: try to make your tasks around 30 minutes long. Otherwise,
         create subtasks manually or using the AI
       </p>
@@ -88,7 +92,6 @@ export default function AddForm() {
             type="date"
             id="deadline"
             className="input input__lg"
-            // TODO: deadline must not necessarily be set
             value={input.deadline}
             onChange={handleChange}
           />
@@ -130,11 +133,11 @@ export default function AddForm() {
         <button
           type="button"
           className="btn btn__danger"
-          onClick={() => setDefaultView()}
+          onClick={handleCancel}
         >
           cancel
         </button>
-        <button disabled={addBtnDisabled} type="submit" className="btn btn__add" onClick={handleSubmit}>
+        <button disabled={addBtnDisabled} type="submit" className="btn btn__smAdd" onClick={handleSubmit}>
           add
         </button>
       </div>

@@ -12,13 +12,21 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
     setSubtaskName(e.target.value);
   }
 
+  function handleBlur() {
+    props.editSubtask(props.subtask.id, subtaskName)
+  }
+
   function toggleSubtaskCompletion() {
     window.api.toggleSubtaskCompletion(props.subtask.id);
   }
 
+  function handleDelete() {
+    props.deleteSubtask(props.subtask.id)
+  }
+
   //When in details mode, display the subtask items with a checkbox
   const detailsTemplate = (
-    <div className="c-cb">
+    <div className="c-cb subtask-item">
       <input
         id={props.subtask.id}
         type="checkbox"
@@ -38,20 +46,20 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
         <input
           type="text"
           id="subtask"
-          className="input input__lg"
+          className="input input__lg input__subtask"
           autoComplete="off"
           placeholder={subtaskName}
           value={subtaskName}
           onChange={handleChange}
-          onBlur={() => props.editSubtask(props.subtask.id, subtaskName)}
+          onBlur={handleBlur}
         />
         <button
           type="button"
-          className="btn"
-          onClick={() => props.deleteSubtask(props.subtask.id)}
+          className="btn faTrashCan"
+          onClick={handleDelete}
         >
           {/* TODO: Add edit button and delete onBlur handler */}
-          <FontAwesomeIcon icon={faTrashCan} style={{ color: "#ff2600" }} />
+          <FontAwesomeIcon icon={faTrashCan} className="faTrashCan" />
         </button>
       </div>
     </>

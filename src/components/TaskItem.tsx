@@ -1,7 +1,7 @@
 import { faBarsStaggered } from "@fortawesome/free-solid-svg-icons";
 import { useViewService } from "../viewService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import { Task } from "../appStore";
 
 export default function TaskItem(props: { currentTask: Task; }) {
@@ -39,13 +39,19 @@ export default function TaskItem(props: { currentTask: Task; }) {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0"); 
   const formattedDate = `${day}.${month}.${year}`;
+  // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
+  const completedTaskStyling: CSSProperties = {
+    paddingLeft: hasSubtasks ? "13px" : "40px", 
+    opacity: props.currentTask.completed ? 0.3 : 1
+  }
 
   return (
     <div className="stack-small" onClick={handleClick}>
-      <div className="c-cb" style={{paddingLeft: hasSubtasks ? "13px" : "40px", opacity: props.currentTask.completed ? 0.3 : 1}}>
+      <div className="c-cb" style={completedTaskStyling}>
         {hasSubtasks ? (
           <FontAwesomeIcon
             icon={faBarsStaggered}
+            // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
             style={{ paddingLeft: "0px", paddingRight: "13px" }}
           />
         ) : (

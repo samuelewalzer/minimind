@@ -15,9 +15,9 @@ const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     // icon: path.join(__dirname, "assets", "icon"),
-    height: 1500,
-    minHeight: 800,
-    width: 1200,
+    height: 1000,
+    minHeight: 850,
+    width: 1400,
     minWidth: 1200,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -28,7 +28,7 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 // Menu.setApplicationMenu(null);
@@ -56,14 +56,13 @@ app.on("activate", () => {
 });
 
 import React from 'react';
+import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 if (process.env.NODE_ENV === 'development') {
-  const whyDidYouRender = require('@welldone-software/why-did-you-render');
   whyDidYouRender(React, {
     trackAllPureComponents: true,
   });
 }
-
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.

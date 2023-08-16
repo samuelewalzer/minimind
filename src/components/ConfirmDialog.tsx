@@ -1,5 +1,14 @@
 import React from "react";
 
+type ConfirmDialogProps = {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  showConfirmButton: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+};
+
 export default function ConfirmDialog({
   isOpen,
   title,
@@ -7,14 +16,14 @@ export default function ConfirmDialog({
   showConfirmButton,
   onConfirm,
   onCancel,
-}) {
+}: ConfirmDialogProps) {
   if (!isOpen) return null;
 
   return (
     <div className="confirm-dialog">
       <div className="confirm-dialog-content">
         <h1>{title}</h1>
-        <p style={{ whiteSpace: "pre-line" }}>{message}</p>
+        <p>{message}</p>
         <div className="btn-group">
           {showConfirmButton ? (
             <>

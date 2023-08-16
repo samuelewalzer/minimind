@@ -13,7 +13,7 @@ const FILTER_NAMES = Object.keys(FILTER_MAP);
 
 export default function TaskContainer() {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Active");
   const { setAddView } = useViewService();
 
   // Fetch tasks from database through api
@@ -48,22 +48,26 @@ export default function TaskContainer() {
     />
   ));
 
+  function handleAdd() {
+    setAddView();
+  }
+
   return (
     <>
-      <div className="task-container">
+      <div className="taskContainer">
+      <h2>all Tasks</h2>
         <>
-          <div className="filters btn-group stack-exception">{filterList}</div>
+          <div className="filters btn-group">{filterList}</div>
           <ul
             role="list"
-            className="todo-list stack-large stack-exception"
-            aria-labelledby="list-heading"
+            className="stack-large taskList"
           >
-            {taskList}
+            {taskList.length ? taskList: <h3>click on the button below to add a tasks</h3>}
           </ul>
           <button
             type="button"
             className="btn btn__primary btn__lg"
-            onClick={() => setAddView()}
+            onClick={handleAdd}
           >
             add task
           </button>
