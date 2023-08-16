@@ -8,6 +8,7 @@ import SubtaskContainer from "./SubtaskContainer";
 export default function AddForm() {
   const { setDefaultView } = useViewService();
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [addBtnDisabled, setAddBtnDisabled] = useState(false);
 
   const [input, setInput] = useState<Task>({
     id: `task-${nanoid()}`,
@@ -67,6 +68,7 @@ export default function AddForm() {
         setSubtasks={setSubtasks}
         parentTaskId={input.id}
         handleChange={handleChange}
+        setAddBtnDisabled={setAddBtnDisabled}
       />
 
       {/* subtask container with subtask items and input field to add new tasks*/}
@@ -132,7 +134,7 @@ export default function AddForm() {
         >
           cancel
         </button>
-        <button type="submit" className="btn btn__add" onClick={handleSubmit}>
+        <button disabled={addBtnDisabled} type="submit" className="btn btn__add" onClick={handleSubmit}>
           add
         </button>
       </div>

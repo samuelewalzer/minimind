@@ -37,12 +37,12 @@ export default function TaskItem(props: { currentTask: Task; }) {
   const date = new Date(props.currentTask.deadline);
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0"); 
   const formattedDate = `${day}.${month}.${year}`;
 
   return (
     <div className="stack-small" onClick={handleClick}>
-      <div className="c-cb" style={{paddingLeft: hasSubtasks ? "10px" : "40px", opacity: props.currentTask.completed ? 0.3 : 1}}>
+      <div className="c-cb" style={{paddingLeft: hasSubtasks ? "13px" : "40px", opacity: props.currentTask.completed ? 0.3 : 1}}>
         {hasSubtasks ? (
           <FontAwesomeIcon
             icon={faBarsStaggered}

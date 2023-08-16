@@ -1,13 +1,9 @@
 body {
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Courier New', Courier, monospace;
   margin: auto;
   padding: 2rem;
   width: 100%;
   height: 100%;
-}
-
-#root {
-  height: 100vh;
 }
 
 .label_title {
@@ -15,7 +11,13 @@ body {
   font-weight: bold;
 }
 
-p {
+.titleHeader {
+  font-size: 10rem;
+  text-align: center;
+}
+
+p,
+h2 {
   font-family: 'Courier New', Courier, monospace;
 }
 
@@ -42,10 +44,6 @@ select:disabled {
   padding: 1rem;
 }
 
-.task-item-container {
-  display: flex;
-  justify-content: space-between;
-}
 .task-container{
   margin: 2rem;
 }
@@ -59,7 +57,6 @@ select:disabled {
   overflow-y: auto;
 }
 
-
 /* RESETS */
 *,
 *::before,
@@ -72,10 +69,6 @@ select:disabled {
 }
 html {
   font: 62.5% / 1.15 sans-serif;
-}
-h1,
-h2 {
-  margin-bottom: 0;
 }
 ul {
   list-style: none;
@@ -104,7 +97,7 @@ optgroup,
 select,
 textarea {
   font-family: inherit;
-  font-size: 100%;
+  font-size: inherit;
   line-height: 1.15;
   margin: 0;
 }
@@ -116,12 +109,12 @@ input {
 @media screen and (min-width: 620px) {
   body {
     font-size: 1.9rem;
-    line-height: 1.31579;
   }
 }
 /*END RESETS*/
 /* GLOBAL STYLES */
 .form-group > input[type="text"] {
+  font-family:Arial, Helvetica, sans-serif;
   display: flex;
   margin-top: 0.4rem;
 }
@@ -135,6 +128,18 @@ input {
   border-color: #000;
   background-color: #ffffff;
   color: #000000
+}
+.btn:disabled {
+  border-color: grey;
+  background-color: grey;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+.btn:disabled:hover {
+  border-color: grey;
+  background-color: grey;
+  color: #ffffff;
+  cursor: not-allowed;
 }
 .btn.toggle-btn {
   border-width: 0px;
@@ -207,12 +212,15 @@ input {
 .stack-large > * + * {
   margin-top: 2.5rem;
 }
+.stack-small > * + * {
+  margin-top: 2.5rem;
+}
 @media screen and (min-width: 550px) {
   .stack-small > * + * {
-    margin-top: 1.4rem;
+    margin-top: 1rem;
   }
   .stack-large > * + * {
-    margin-top: 2.8rem;
+    margin-top: 1rem;
   }
 }
 .stack-exception {
@@ -221,7 +229,7 @@ input {
 /* END GLOBAL STYLES */
 .todoapp {
   background: #fff;
-  margin: 2rem 0 4rem 0;
+  margin: 1rem 0 1rem 0;
   padding: 1rem;
   position: relative;
   box-shadow:
@@ -282,12 +290,12 @@ input {
   margin-top: 1rem;
   display: flex;
   align-items: center;
-  height: 100%;
+
 }
 [class*="__lg"] {
   display: inline-block;
   width: 100%;
-  font-size: 1.9rem;
+
 }
 [class*="__lg"]:not(:last-child) {
   margin-bottom: 1rem;
@@ -295,7 +303,6 @@ input {
 }
 @media screen and (min-width: 620px) {
   [class*="__lg"] {
-    font-size: 2.4rem;
   }
 }
 /* Todo item styles */
@@ -321,7 +328,6 @@ input {
 .c-cb {
   box-sizing: border-box;
   border-radius: 1rem;
-  font-family: Arial, sans-serif, "source-code-variable";
   -webkit-font-smoothing: antialiased;
   font-weight: 400;
   font-size: 1.6rem;
@@ -375,7 +381,7 @@ input {
   box-sizing: content-box;
   content: "";
   position: absolute;
-  top: 11px;
+  top: px;
   left: 9px;
   width: 18px;
   height: 7px;
@@ -388,4 +394,44 @@ input {
 }
 .c-cb > input[type="checkbox"]:checked + label::after {
   opacity: 1;
+}
+
+.confirm-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-dialog-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
+}
+
+.appContainer {
+  display: grid;
+  grid-template-rows: 10% 70% 20%;
+  height: 80vh; 
+  overflow: hidden;
+}
+
+.taskSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.lawnSection {
+  align-self: end;
 }

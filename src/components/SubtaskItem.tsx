@@ -18,7 +18,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
 
   //When in details mode, display the subtask items with a checkbox
   const detailsTemplate = (
-    <div className="c-cb subtask-item">
+    <div className="c-cb">
       <input
         id={props.subtask.id}
         type="checkbox"
