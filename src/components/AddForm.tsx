@@ -58,10 +58,10 @@ export default function AddForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="input-form">
+    <form className="input-form">
       <p className="taskSize-hint">
-        Remember: try to make your tasks around 30 minutes long. Otherwise,
-        create subtasks manually or using the AI
+        Remember: Try to make your tasks around <strong>30 minutes</strong> long. Otherwise,
+        create subtasks manually or using the AI by clicking the <strong>check</strong>-button
       </p>
       <label htmlFor="title" className="label_title">
         title
@@ -137,7 +137,7 @@ export default function AddForm() {
         >
           cancel
         </button>
-        <button disabled={addBtnDisabled} type="submit" className="btn btn__smAdd" onClick={handleSubmit}>
+        <button disabled={addBtnDisabled} type="submit" className="btn" onClick={handleSubmit}>
           add
         </button>
       </div>

@@ -57,7 +57,7 @@ select:disabled {
 }
 
 .subtask-container {
-  max-height: 30rem;
+  max-height: 40vh;
   overflow-y: auto;
   margin-bottom: 1rem;
 }
@@ -419,6 +419,7 @@ btn__smAdd {
   background: #228aec3a;
   border-radius: 1rem;
   padding: 1rem;
+  margin: 0
 }
 
 .appContainer {

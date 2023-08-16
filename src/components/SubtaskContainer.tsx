@@ -71,7 +71,7 @@ export default function SubtaskContainer(props: {
 
   const editAddTemplate = (
     <>
-      <div className="input-container" onSubmit={addSubtask}>
+      <form className="input-container" onSubmit={addSubtask}>
           <input
             type="text"
             id="subtask"
@@ -79,11 +79,12 @@ export default function SubtaskContainer(props: {
             className="input input__lg"
             value={subtaskName}
             onChange={handleChange}
+            onSubmit={addSubtask} 
           />
-          <button type="button" className="btn" onClick={addSubtask}>
+          <button type="submit" className="btn" onClick={addSubtask}>
             add
           </button>
-        </div>
+        </form>
     </>
   );
 

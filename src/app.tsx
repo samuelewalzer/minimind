@@ -64,12 +64,12 @@ export default function App() {
       </div>
       <div className="lawnSection"></div>
       <div>Number of tasks completed today: {completedTodayCount}</div>
-      {/* {Array(completedTodayCount)
+      {Array(completedTodayCount)
         .fill(null)
         .map((_, index) => {
           const flower = getRandomFlower();
           return <React.Fragment key={index}>{flower}</React.Fragment>;
-        })} */}
+        })}
     </div>
   );
 }

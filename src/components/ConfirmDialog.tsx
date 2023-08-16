@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 type ConfirmDialogProps = {
   isOpen: boolean;
@@ -17,6 +17,15 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+
+  const confirmButtonRef = useRef(null);
+
+  useEffect(() => {
+      if (isOpen) {
+          confirmButtonRef.current.focus();
+      }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -30,12 +39,12 @@ export default function ConfirmDialog({
               <button className="btn" onClick={onCancel}>
                 No
               </button>
-              <button className="btn" onClick={onConfirm}>
+              <button ref={confirmButtonRef} className="btn" onClick={onConfirm}>
                 Yes
               </button>
             </>
           ) : 
-          <button className='btn' onClick={onCancel}>Okay</button>}
+          <button ref={confirmButtonRef} className='btn' onClick={onCancel}>Okay</button>}
         </div>
       </div>
     </div>
