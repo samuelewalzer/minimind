@@ -6,7 +6,7 @@ import path = require("path");
 
 class Database {
   private db: sqlite3.Database;
-
+  
   constructor() { 
     const userDataPath = (electron.app).getPath('userData');
 const dbPath = path.join(userDataPath, 'mydatabase.db');
@@ -454,9 +454,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
     );
     const totalCount = await this.countAllSubtasksForParent(parentTaskId);
 
-    console.log("completed count: ", completedCount);
-    console.log("total count: ", totalCount);
-
     if (completedCount === totalCount) {
       await this.toggleTaskCompletion(parentTaskId, false);
     } else {
@@ -544,12 +541,10 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
                 reject(subtaskError);
                 return;
               }
-
+              console.log("task count: ",taskRow.count+subtaskRow.count);
+              console.log("subtask count: ",subtaskRow.count);
               // Sum the counts and resolve
-              const totalCount =
-                (taskRow as { count?: number }).count ||
-                0 + (subtaskRow as { count?: number }).count ||
-                0;
+              const totalCount = (taskRow as { count?: number }).count + (subtaskRow as { count?: number }).count;
               resolve(totalCount);
             }
           );

@@ -30,22 +30,27 @@ import "./index.css";
 import { createRoot } from "react-dom/client";
 import App from "./app";
 import { ViewServiceProvider } from "./viewService";
-import { Task } from "./appStore";
+import React from "react";
+import { GlobalRerenderProvider } from "./globalRendererContext";
+
+function handleView() {
+  throw new Error("Function not implemented.");
+}
+
+function handleDetailsView() {
+  throw new Error("Function not implemented.");
+}
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
   <>
-    <ViewServiceProvider currentTask={undefined} viewMode={""} setAddView={function (): void {
-      throw new Error("Function not implemented.");
-    } } setEditView={function (): void {
-      throw new Error("Function not implemented.");
-    } } setDetailsView={function (task: Task): void {
-      throw new Error("Function not implemented.");
-    } } setDefaultView={function (): void {
-      throw new Error("Function not implemented.");
-    } }>
-      <App />
-    </ViewServiceProvider>
+    <React.StrictMode>
+      <ViewServiceProvider>
+        <GlobalRerenderProvider>
+          <App />
+        </GlobalRerenderProvider>
+      </ViewServiceProvider>
+    </React.StrictMode>
   </>
 );

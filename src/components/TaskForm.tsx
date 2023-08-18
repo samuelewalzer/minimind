@@ -33,6 +33,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
       try {
         const response = await window.api.getSubtasksFromParent(currentTask.id);
         setSubtasks(response);
+        console.log("Fetching subtasks from database");
       } catch (error) {
         console.log("Error fetching subtasks:", error);
       }
@@ -90,9 +91,17 @@ export default function TaskForm(props: { disabled: boolean; }) {
     setDefaultView();
   }
 
+  function handleEdit() {
+    setEditView();
+  }
+
+  function handleCancel () {
+    setDetailsView(currentTask)
+  }
+
   const viewTemplate = (
     <div className="btn-group">
-      <button type="button" className="btn" onClick={() => setEditView()}>
+      <button type="button" className="btn" onClick={handleEdit}>
         edit
       </button>
       <button type="button" className="btn btn__danger" onClick={handleDelete}>
@@ -106,7 +115,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
       <button
         type="button"
         className="btn btn__danger"
-        onClick={() => setDetailsView(currentTask)}
+        onClick={handleCancel}
       >
         cancel
       </button>
@@ -118,7 +127,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
 
   return (
     <form onSubmit={handleSubmit} className="input-form">
-      <label htmlFor="title" className="label_title" onClick={() => setEditView()}>
+      <label htmlFor="title" className="label_title">
         title
         <input
           type="text"

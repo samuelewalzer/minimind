@@ -1,12 +1,14 @@
 import { faBarsStaggered } from "@fortawesome/free-solid-svg-icons";
 import { useViewService } from "../viewService";
+import { useGlobalRerender } from "../globalRendererContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CSSProperties, useEffect, useState } from "react";
 import { Task } from "../appStore";
 
 export default function TaskItem(props: { currentTask: Task; }) {
   const { setDetailsView } = useViewService();
-
+  const { triggerRerender } = useGlobalRerender();
+  
   function handleClick(e: { stopPropagation: () => void; }) {
     e.stopPropagation();
     setDetailsView(props.currentTask);
@@ -18,6 +20,7 @@ export default function TaskItem(props: { currentTask: Task; }) {
       props.currentTask.id,
       props.currentTask.completed
     );
+    triggerRerender();
   }
 
   const [hasSubtasks, setHasSubtasks] = useState(false);

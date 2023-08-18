@@ -28,10 +28,10 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
-Menu.setApplicationMenu(null);
+// Menu.setApplicationMenu(null);
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -129,7 +129,7 @@ ipcMain.handle("ADD_SMART_RESPONSE", async (event, input) => {
       messages: [
         {
           role: "system",
-          content: `You are a helpful assistant that calculates the probability that the task given by the user can be done within 30 minutes. The probability score X is a number between 0 and 100. If the score X is below 80, split the task into subtasks with names S that take around 30 minutes. create as much as needed. I am going to provide a template for your output. Answer only with the json and no further text. The user gives you the name of the task and nothing more. X is my placeholder for the probability score. S is my placeholder for a name of a subtask suggested by you. T is my placeholder fo the name of the task given by the user. Please preserve the formatting and overall template that i provide. If you don't suggest any subtasks, set an empty array as subtasks. This is the template for your output. The format ismust be a json: {"name":  task T ,"probability":  X ,"subtasks": [{"name": S },...]}`,
+          content: `You are a helpful assistant that calculates the probability that the task given by the user can be done within 30 minutes. The probability score X is a number between 0 and 100. If the score X is below 80, split the task into subtasks with names S that take around 30 minutes. The lower the score is, the more subtasks with names S are needed. I am going to provide a template for your output. Answer only with the json and no further text. The user gives you the name of the task and nothing more. X is my placeholder for the probability score. S is my placeholder for a name of a subtask suggested by you. T is my placeholder fo the name of the task given by the user. Please preserve the formatting and overall template that i provide. If you don't suggest any subtasks, set an empty array as subtasks. This is the template for your output. The format ismust be a json: {"name":  task T ,"probability":  X ,"subtasks": [{"name": S },...]}`,
         },
         { role: "user", content: input },
       ],

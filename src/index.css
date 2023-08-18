@@ -437,7 +437,7 @@ btn__smAdd {
   grid-template-columns: 1fr 1fr;
 }
 .taskContainer {
-  height: 100%;
+  height: 70%;
   padding: 2rem;
   background-image: url("./assets/tasks_background.png");
   background-size: 90%;
@@ -446,23 +446,19 @@ btn__smAdd {
 }
 
 .taskList {
-  max-height: 60vh;
+  max-height: 50vh;
   overflow-y: auto;
 }
 
 .formContainer {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 70%;
   padding: 2rem;
   background-image: url("./assets/forms_background.png");
   background-size: 90%;
   background-repeat: no-repeat;
   /* background-color: #d3f4db; */
-}
-
-.lawnSection {
-  align-self: end;
 }
 
 /* ICONS */

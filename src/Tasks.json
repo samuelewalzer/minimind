@@ -1,5 +1,0 @@
-[
-  { "id": "task-1", "name": "Eat", "completed": true, "deadline": "2020-12-31T23:59:59.999Z", "priority": "low", "subtasks": ["task-1A", "task-1B"], "notes":""},
-  { "id": "task-2", "name": "Sleep", "completed": false, "deadline": "2020-12-31T23:59:59.999Z", "priority": "low", "subtasks": ["task-1A", "task-1B"], "notes":""},
-  { "id": "task-3", "name": "Repeat", "completed": false , "deadline": "2020-12-31T23:59:59.999Z", "priority": "low", "subtasks": ["task-1A", "task-1B"], "notes":""}
-]

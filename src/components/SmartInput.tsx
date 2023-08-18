@@ -52,8 +52,8 @@ export default function SmartInput(props: {
       handleSubtasksResponse(response);
     } catch (error) {
       setConfirmation({
-        title: error.message,
-        message: `Error getting subtasks. Please try again!`,
+        title: "Error!",
+        message: `${error.message}. Please try again!`,
         showDialog: true,
         showConfirmButton: false,
       })
@@ -84,7 +84,7 @@ export default function SmartInput(props: {
         showDialog: true,
         showConfirmButton: false,
       })
-    } else if (response.probability < 30) {
+    } else if (response.probability < 50) {
       const subtaskNames = newSubtasks.map(subtask => `• ${subtask.name}`).join("\n");
       setConfirmation({
         title: "Your task is too big!",
@@ -136,7 +136,6 @@ export default function SmartInput(props: {
           placeholder="Type your task title here"
           value={props.smartInput}
           onChange={props.handleChange}
-          onBlur={handleClick}
           disabled={isLoading} />
 
         <button

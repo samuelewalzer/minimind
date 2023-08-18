@@ -1,11 +1,14 @@
 import { useViewService } from "../viewService";
+import { useGlobalRerender } from "../globalRendererContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Subtask } from "../appStore";
 
+
 export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (subtaskId: string, newName: string) => void; deleteSubtask: (subtaskId: string) => void; }) {
   const { viewMode } = useViewService();
+  const { triggerRerender } = useGlobalRerender();
   const [subtaskName, setSubtaskName] = useState(props.subtask.name || "");
 
   function handleChange(e: { target: { value: string; }; }) {
@@ -18,6 +21,8 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
 
   function toggleSubtaskCompletion() {
     window.api.toggleSubtaskCompletion(props.subtask.id);
+    triggerRerender();
+
   }
 
   function handleDelete() {

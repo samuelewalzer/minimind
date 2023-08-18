@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import FilterButton from "./FilterButton";
 import TaskItem from "./TaskItem";
 import { useViewService } from "../viewService";
+import { useGlobalRerender } from "../globalRendererContext";
 import { Task } from "../appStore"
 
 const FILTER_MAP = {
@@ -15,6 +16,7 @@ export default function TaskContainer() {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("Active");
   const { setAddView } = useViewService();
+  const {rerenderToken } = useGlobalRerender();
 
   // Fetch tasks from database through api
   useEffect(() => {
@@ -28,7 +30,8 @@ export default function TaskContainer() {
     }
 
     fetchTasks();
-  }, [tasks]);
+    console.log("Fetching tasks from database");
+  }, [rerenderToken]);
 
   const taskList = tasks
     .filter((task) => FILTER_MAP[filter as keyof typeof FILTER_MAP](task))

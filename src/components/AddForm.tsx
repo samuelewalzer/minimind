@@ -2,11 +2,13 @@ import { useState } from "react";
 import { nanoid } from "nanoid";
 import { Subtask, Task } from "../appStore";
 import { useViewService } from "../viewService";
+import { useGlobalRerender } from "../globalRendererContext";
 import SmartInput from "./SmartInput";
 import SubtaskContainer from "./SubtaskContainer";
 
 export default function AddForm() {
   const { setDefaultView } = useViewService();
+  const { triggerRerender } = useGlobalRerender();
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [addBtnDisabled, setAddBtnDisabled] = useState(false);
 
@@ -49,6 +51,7 @@ export default function AddForm() {
     };
 
     window.api.addTask(newTask);
+    triggerRerender();
     setSubtasks([]);
     setDefaultView();
   }
@@ -58,24 +61,26 @@ export default function AddForm() {
   }
 
   return (
-    <form className="input-form">
-      <p className="taskSize-hint">
-        Remember: Try to make your tasks around <strong>30 minutes</strong> long. Otherwise,
-        create subtasks manually or using the AI by clicking the <strong>check</strong>-button
-      </p>
-      <label htmlFor="title" className="label_title">
-        title
-      </label>
-      <SmartInput
-        smartInput={input.name}
-        subtasks={subtasks}
-        setSubtasks={setSubtasks}
-        parentTaskId={input.id}
-        handleChange={handleChange}
-        setAddBtnDisabled={setAddBtnDisabled}
-      />
-
-      {/* subtask container with subtask items and input field to add new tasks*/}
+    <>
+      <form className="input-form">
+        <p className="taskSize-hint">
+          Remember: Try to make your tasks around <strong>30 minutes</strong>{" "}
+          long. Otherwise, create subtasks manually or using the AI by clicking
+          the <strong>check</strong>-button
+        </p>
+        <label htmlFor="title" className="label_title">
+          title
+        </label>
+        <SmartInput
+          smartInput={input.name}
+          subtasks={subtasks}
+          setSubtasks={setSubtasks}
+          parentTaskId={input.id}
+          handleChange={handleChange}
+          setAddBtnDisabled={setAddBtnDisabled}
+        />
+        {/* subtask container with subtask items and input field to add new tasks*/}
+      </form>
       <div>
         <SubtaskContainer
           subtasks={subtasks}
@@ -83,64 +88,70 @@ export default function AddForm() {
           parentTaskId={input.id}
         />
       </div>
+      <form>
+        {/* input form containing settings for deadline and priority */}
+        <div className="input-group">
+          <label htmlFor="deadline" className="label_title">
+            deadline
+            <input
+              type="date"
+              id="deadline"
+              className="input input__lg"
+              value={input.deadline}
+              onChange={handleChange}
+            />
+          </label>
+          <label htmlFor="priority" className="label_title">
+            priority
+            <select
+              name="priority"
+              id="priority"
+              className="input input__lg"
+              value={input.priority}
+              onChange={handleChange}
+            >
+              <option value="low">low</option>
+              <option value="middle">middle</option>
+              <option value="high">high</option>
+            </select>
+          </label>
+        </div>
 
-      {/* input form containing settings for deadline and priority */}
-      <div className="input-group">
-        <label htmlFor="deadline" className="label_title">
-          deadline
-          <input
-            type="date"
-            id="deadline"
-            className="input input__lg"
-            value={input.deadline}
-            onChange={handleChange}
-          />
-        </label>
-        <label htmlFor="priority" className="label_title">
-          priority
-          <select
-            name="priority"
-            id="priority"
-            className="input input__lg"
-            value={input.priority}
-            onChange={handleChange}
+        {/* input form for notes */}
+        <div>
+          <label htmlFor="notes" className="label_title">
+            notes
+            <input
+              type="text"
+              id="notes"
+              className="input input__lg"
+              autoComplete="off"
+              placeholder="Type your notes here"
+              value={input.notes}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+
+        {/* buttons for adding tasks or cancelling */}
+        <div className="btn-group">
+          <button
+            type="button"
+            className="btn btn__danger"
+            onClick={handleCancel}
           >
-            <option value="low">low</option>
-            <option value="middle">middle</option>
-            <option value="high">high</option>
-          </select>
-        </label>
-      </div>
-
-      {/* input form for notes */}
-      <div>
-        <label htmlFor="notes" className="label_title">
-          notes
-          <input
-            type="text"
-            id="notes"
-            className="input input__lg"
-            autoComplete="off"
-            placeholder="Type your notes here"
-            value={input.notes}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-
-      {/* buttons for adding tasks or cancelling */}
-      <div className="btn-group">
-        <button
-          type="button"
-          className="btn btn__danger"
-          onClick={handleCancel}
-        >
-          cancel
-        </button>
-        <button disabled={addBtnDisabled} type="submit" className="btn" onClick={handleSubmit}>
-          add
-        </button>
-      </div>
-    </form>
+            cancel
+          </button>
+          <button
+            disabled={addBtnDisabled}
+            type="submit"
+            className="btn"
+            onClick={handleSubmit}
+          >
+            add
+          </button>
+        </div>
+      </form>
+    </>
   );
 }
