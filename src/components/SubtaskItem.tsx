@@ -38,7 +38,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
         defaultChecked={props.subtask.completed}
         onClick={toggleSubtaskCompletion}
       />
-      <label className="todo-label">
+      <label className="task-label">
         {props.subtask.name}
       </label>
     </div>
@@ -63,7 +63,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
           className="btn faTrashCan"
           onClick={handleDelete}
         >
-          {/* TODO: Add edit button and delete onBlur handler */}
+
           <FontAwesomeIcon icon={faTrashCan} className="faTrashCan" />
         </button>
       </div>

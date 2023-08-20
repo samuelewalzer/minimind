@@ -6,15 +6,15 @@ import { useGlobalRerender } from "../globalRendererContext";
 import { Task } from "../appStore"
 
 const FILTER_MAP = {
-  All: () => true,
-  Active: (task: Task) => !task.completed,
-  Completed: (task: Task) => task.completed,
+  all: () => true,
+  active: (task: Task) => !task.completed,
+  completed: (task: Task) => task.completed,
 };
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
 export default function TaskContainer() {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState("Active");
+  const [filter, setFilter] = useState("active");
   const { setAddView } = useViewService();
   const {rerenderToken } = useGlobalRerender();
 
@@ -58,7 +58,7 @@ export default function TaskContainer() {
   return (
     <>
       <div className="taskContainer">
-      <h2>all Tasks</h2>
+      <h2>all tasks</h2>
         <>
           <div className="filters btn-group">{filterList}</div>
           <ul

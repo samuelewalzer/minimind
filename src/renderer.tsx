@@ -1,3 +1,4 @@
+/* eslint-disable react-perf/jsx-no-new-function-as-prop */
 /**
  * This file will automatically be loaded by webpack and run in the "renderer" context.
  * To learn more about the differences between the "main" and the "renderer" context in
@@ -26,28 +27,36 @@
  * ```
  */
 
-import "./index.css";
 import { createRoot } from "react-dom/client";
-import App from "./app";
-import { ViewServiceProvider } from "./viewService";
 import React from "react";
+import App from "./app";
+
+// STYLES
+import "./styles/index.css";
+import "./styles/buttons.css";
+import "./styles/containers.css";
+
+// SERVICES 
+import { ViewServiceProvider } from "./viewService";
 import { GlobalRerenderProvider } from "./globalRendererContext";
-
-function handleView() {
-  throw new Error("Function not implemented.");
-}
-
-function handleDetailsView() {
-  throw new Error("Function not implemented.");
-}
 
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(
   <>
     <React.StrictMode>
-      <ViewServiceProvider>
-        <GlobalRerenderProvider>
+      <ViewServiceProvider currentTask={undefined} viewMode={""} setAddView={function (): void {
+        throw new Error("Function not implemented.");
+      } } setEditView={function (): void {
+        throw new Error("Function not implemented.");
+      } } setDetailsView={function (): void {
+        throw new Error("Function not implemented.");
+      } } setDefaultView={function (): void {
+        throw new Error("Function not implemented.");
+      } }>
+        <GlobalRerenderProvider triggerRerender={function (): void {
+          throw new Error("Function not implemented.");
+        } } rerenderToken={0}>
           <App />
         </GlobalRerenderProvider>
       </ViewServiceProvider>

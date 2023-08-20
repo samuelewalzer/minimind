@@ -26,7 +26,7 @@ export default function flowerCounter() {
   ];
 
   const numberOfFlowers = completedTodayCount;
-  const spacing = window.innerWidth / (numberOfFlowers + 1);
+  const spacing = (window.innerWidth-100) / (numberOfFlowers + 1);
 
   const getRandomOffset = (maxOffset: number) => {
     // Generate a random value between -maxOffset and maxOffset
@@ -40,7 +40,7 @@ export default function flowerCounter() {
     // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
     const imageStyle: CSSProperties = {
       position: "fixed",
-      bottom: "0px",
+      bottom: `${1+Math.random() * 4}vh`,
       left: `${leftPosition}px`,
       height: `${5 + Math.random() * 5}vh`,
     };
@@ -48,8 +48,8 @@ export default function flowerCounter() {
   };
 
   return (
-    <div>
-      <div>Number of tasks completed today: {completedTodayCount}</div>
+    <div className="flowerContainer">
+      {/* <div>Number of tasks completed today: {completedTodayCount}</div> */}
       {Array.from({ length: numberOfFlowers }).map((_, index) => (
         <React.Fragment key={index}>{getFlower(index)}</React.Fragment>
       ))}

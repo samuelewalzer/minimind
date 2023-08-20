@@ -9,12 +9,11 @@ class Database {
   
   constructor() { 
     const userDataPath = (electron.app).getPath('userData');
-const dbPath = path.join(userDataPath, 'mydatabase.db');
+    const dbPath = path.join(userDataPath, 'mydatabase.db');
     this.db = new sqlite3.Database(dbPath, (error) => {
       if (error) {
         console.error("Error opening the database:", error);
       } else {
-        console.log()
         this.initTables();
       }
     });
@@ -47,25 +46,35 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
         completed INTERGER DEFAULT 0,
         completedDate TEXT,
         parentTaskId TEXT,
-        FOREIGN KEY (parentTaskId) REFERENCES tasks(id) ON DELETE CASCADE
+        FOREIGN KEY (parentTaskId) REFERENCES tasks(id)
       )
     `);
 
     // Create the smartResponses table if it doesn't exist
     this.db.run(`
-      CREATE TABLE IF NOT EXISTS smartResponses (
+      CREATE TABLE IF NOT EXISTS smartResponseTasks (
         id TEXT PRIMARY KEY,
+        createdDate TEXT,
         name TEXT,
         probability NUMBER,
-        subtasks LIST
+        subtasks LIST,
+        FOREIGN KEY (subtasks) REFERENCES smartResponseSubtasks(id)
       )
+    `);
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS smartResponseSubtasks (
+        id TEXT PRIMARY KEY,
+        createdDate TEXT,
+        name TEXT,
+        parentTaskId TEXT,
+        FOREIGN KEY (parentTaskId) REFERENCES smartResponseTask(id)
+        )
     `);
   }
 
   // METHODS FOR TASKS
   async addTask(task: Task): Promise<void> {
     try {
-      console.log("database.ts - Task received:", task);
       const temporarySubtasks = [...task.subtasks];
 
       await new Promise((resolve, reject) => {
@@ -99,7 +108,7 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
             `
           INSERT INTO subtasks (id, createdDate, completed, name, parentTaskId) VALUES (?, ?, ?, ?, ?)
           `,
-            [subtask.id, new Date(), subtask.completed, subtask.name, task.id],
+            [subtask.id, new Date().toISOString(), subtask.completed, subtask.name, task.id],
             (error) => {
               if (error) {
                 reject(error);
@@ -122,7 +131,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
   async editTask(updatedTask: Task): Promise<void> {
     try {
       const temporarySubtasks = updatedTask.subtasks ?? [];
-      console.log("(db editTask) temporary subtasks: ", temporarySubtasks);
       // Update the task in the tasks table
       await new Promise((resolve, reject) => {
         this.db.run(
@@ -184,7 +192,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
           });
         } else if (subtask.id) {
           // if the subtask has an id and is not marked delete, update it
-          console.log("(db: editTask) trying to edit subtask");
           await new Promise((resolve, reject) => {
             this.db.run(
               `
@@ -196,9 +203,7 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
                   reject(error);
                 } else {
                   console.log(
-                    `(db: editTask) Subtask ${
-                      subtask.name
-                    } edited (${JSON.stringify(subtask)})`
+                    `(db: editTask) Subtask ${subtask.name} edited (${JSON.stringify(subtask)})`
                   );
                   resolve(error);
                 }
@@ -236,7 +241,20 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
   getTasks(): Promise<Task[]> {
     return new Promise((resolve, reject) => {
       this.db.all(
-        "SELECT * FROM tasks ORDER BY deadline",
+        `SELECT * FROM tasks 
+        ORDER BY 
+          CASE
+            WHEN deadline == "" THEN 1
+            ELSE 0
+          END,
+          deadline,
+          CASE
+            WHEN priority = "high" THEN 1
+            WHEN priority = "middle" THEN 2
+            WHEN priority = "low" THEN 3
+            ELSE 4
+          END
+        `,
         (error: Error | null, rows: Task[]) => {
           if (error) {
             reject(error);
@@ -253,8 +271,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
     completedStatus: boolean
   ): Promise<void> {
     const newCompletionStatus = !completedStatus;
-    console.log("old completion status: ", completedStatus);
-    console.log("new Completion status: ", newCompletionStatus);
     const completedDate = newCompletionStatus ? new Date().toISOString() : null;
     const existsInTasks = await this.idExistsInTasks(taskId);
 
@@ -317,7 +333,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
   }
 
   // METHODS FOR SUBTASKS
-
   async deleteSubtask(subtaskId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log("(db: editTask) trying to delete subtask");
@@ -337,26 +352,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
       );
     });
   }
-
-  // deleteTask(taskId: string): Promise<void> {
-  //   return new Promise((resolve, reject) => {
-  //     console.log("(db deleteTask) trying to delete task");
-  //     this.db.run(
-  //       `
-  //       DELETE FROM tasks WHERE id = ?
-  //       `,
-  //       [taskId],
-  //       (error) => {
-  //         if (error) {
-  //           reject(error);
-  //         } else {
-  //           console.log(`db deleteTask) task with id ${taskId} deleted`);
-  //           resolve();
-  //         }
-  //       }
-  //     );
-  //   });
-  // }
 
   async getSubtaskById(subtaskId: string): Promise<Subtask> {
     return new Promise((resolve, reject) => {
@@ -415,8 +410,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
   async toggleSubtaskCompletion(taskId: string): Promise<void> {
     const subtaskInDb = await this.getSubtaskById(taskId);
     const newCompletionStatus = !subtaskInDb.completed;
-    console.log("old subtask completion status: ", subtaskInDb.completed);
-    console.log("new subtask Completion status: ", newCompletionStatus);
     const completedDate = newCompletionStatus ? new Date().toISOString() : null;
 
     if (!subtaskInDb) {
@@ -435,9 +428,7 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
             reject(error);
           } else {
             this.checkAllSubtasksCompleted(subtaskInDb.parentTaskId);
-            console.log(
-              `${taskId} toggled successfully with date: ${completedDate}`
-            );
+            console.log(`${taskId} toggled successfully with date: ${completedDate}`);
             resolve();
           }
         }
@@ -541,8 +532,6 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
                 reject(subtaskError);
                 return;
               }
-              console.log("task count: ",taskRow.count+subtaskRow.count);
-              console.log("subtask count: ",subtaskRow.count);
               // Sum the counts and resolve
               const totalCount = (taskRow as { count?: number }).count + (subtaskRow as { count?: number }).count;
               resolve(totalCount);
@@ -554,14 +543,16 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
   }
 
   // METHODS FOR SMARTRESPONSE
-  addSmartResponse(data: SmartResponse): Promise<SmartResponse> {
+  async addSmartResponse(data: SmartResponse): Promise<SmartResponse> {
     return new Promise((resolve, reject) => {
-      const id = `smartResponse-${nanoid()}`;
+      const id = `smartTask-${nanoid()}`;
+      
+      // insert the main task into smartResponseTasks table
       this.db.run(
         `
-        INSERT INTO smartResponses (id, name, probability, subtasks) VALUES (?, ?, ?, ?)
+        INSERT INTO smartResponseTasks (id, createdDate, name, probability, subtasks) VALUES (?, ?, ?, ?, ?)
         `,
-        [id, data.name, data.probability, data.subtasks],
+        [id, new Date().toISOString(), data.name, data.probability, data.subtasks],
         (error) => {
           if (error) {
             reject(error);
@@ -571,16 +562,37 @@ const dbPath = path.join(userDataPath, 'mydatabase.db');
           }
         }
       );
+  
+      // prepare subtasks data
+      const names = data.subtasks.map(task => task.name);
+      const newSubtasks = names.map((name) => ({
+        id: `smartSubtask-${nanoid()}`,
+        createdDate: new Date().toISOString(),
+        name: name,
+        parentTaskId: id,
+      }));
+      
+      // insert subtasks into smartResponseSubtasks table
+      for (const subtask of newSubtasks) {
+        new Promise((resolveSubtask, rejectSubtask) => {
+          this.db.run(
+            `
+            INSERT INTO smartResponseSubtasks (id, createdDate, name, parentTaskId) VALUES (?, ?, ?, ?)
+            `,
+            [subtask.id, subtask.createdDate, subtask.name, subtask.parentTaskId],
+            (error) => {
+              if (error) {
+                rejectSubtask(error);
+              } else {
+                console.log(`SmartResponse subtask ${subtask.name} added (${subtask.id})`);
+                resolveSubtask(data);
+              }
+            }
+          );
+        });
+      }
     });
   }
 }
 
 export const database = new Database();
-
-// TODO: set this trigger using a SQL management tool
-// CREATE TRIGGER IF NOT EXISTS delete_subtasts_on_parent_delet
-// AFTER DELETE ON tasks
-// FOR EACH ROW
-// BEGIN
-//   DELETE FROM subtasks WHERE parentTaskId = OLD.id;
-// END;

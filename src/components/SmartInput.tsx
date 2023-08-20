@@ -21,6 +21,7 @@ export default function SmartInput(props: {
   })
 
   function handleClick(e: { preventDefault: () => void }) {
+    e.preventDefault();
     if (!props.smartInput) {
       setConfirmation({
         title: "No task name!",
@@ -28,17 +29,16 @@ export default function SmartInput(props: {
         showDialog: true,
         showConfirmButton: false,
       })
-      return;
+    } else if (props.smartInput) {
+      checkForSubtasks();
     }
-    e.preventDefault();
-    checkForSubtasks();
   }
 
   async function checkForSubtasks() {
     setIsLoading(true);
     props.setAddBtnDisabled(true);
     try {
-      const TIMEOUT_DURATIOON = 8000;
+      const TIMEOUT_DURATIOON = 10000;
       const timeout = new Promise<SmartResponse>((_, reject) =>
         setTimeout(() => reject(new Error("Request timed out")), TIMEOUT_DURATIOON)
       );
@@ -65,7 +65,6 @@ export default function SmartInput(props: {
   }
 
   function handleSubtasksResponse(response: SmartResponse) {
-    
     const newSubtasks = response.subtasks.map((subtask: Subtask) => ({
       id: `smartsubtask-${nanoid()}`,
       createdDate: new Date().toISOString(),
@@ -75,6 +74,7 @@ export default function SmartInput(props: {
       parentTaskId: props.parentTaskId,
       deleted: false,
     }));
+    
     setTempSubtasks(newSubtasks);
     
     if (response.subtasks.length === 0) {
@@ -102,7 +102,7 @@ export default function SmartInput(props: {
     }
   }
 
-  function handleConfirm() {
+  function handleDialogConfirm() {
     setConfirmation({
       ...confirmation,
       showDialog: false
@@ -111,7 +111,7 @@ export default function SmartInput(props: {
     setTempSubtasks([]);
   }
 
-  function handleCancel() {
+  function handleDialogCancel() {
     setConfirmation({
       ...confirmation,
       showDialog: false
@@ -124,8 +124,8 @@ export default function SmartInput(props: {
       title={confirmation.title}
       message={confirmation.message}
       showConfirmButton={confirmation.showConfirmButton}
-      onConfirm={handleConfirm}
-      onCancel={handleCancel} />
+      onConfirm={handleDialogConfirm}
+      onCancel={handleDialogCancel} />
       <form onSubmit={handleClick} className={isLoading ? "loading-cursor" : ""}>
         <div className="input-container">
         <input
@@ -140,7 +140,7 @@ export default function SmartInput(props: {
 
         <button
           type="submit"
-          className="btn btn__smAdd"
+          className="btn small"
           onClick={handleClick}
           disabled={isLoading}
           >

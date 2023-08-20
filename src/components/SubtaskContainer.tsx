@@ -38,7 +38,6 @@ export default function SubtaskContainer(props: {
   }) {
     if (!subtaskName) {
       alert("Please enter a subtask name");
-      return;
     }
     e.preventDefault();
     e.stopPropagation();
@@ -81,7 +80,7 @@ export default function SubtaskContainer(props: {
             onChange={handleChange}
             onSubmit={addSubtask} 
           />
-          <button type="submit" className="btn" onClick={addSubtask}>
+          <button type="submit" className="btn small" onClick={addSubtask}>
             add
           </button>
         </form>

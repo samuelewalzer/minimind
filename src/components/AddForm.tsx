@@ -5,6 +5,7 @@ import { useViewService } from "../viewService";
 import { useGlobalRerender } from "../globalRendererContext";
 import SmartInput from "./SmartInput";
 import SubtaskContainer from "./SubtaskContainer";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function AddForm() {
   const { setDefaultView } = useViewService();
@@ -18,10 +19,17 @@ export default function AddForm() {
     name: "",
     completed: false,
     completedDate: "",
-    deadline: new Date().toISOString().substring(0, 10),
-    priority: "",
+    deadline: "",
+    priority: "low",
     subtasks: subtasks,
     notes: "",
+  });
+
+  const [confirmation, setConfirmation] = useState({
+    title: "Test",
+    message: "",
+    showDialog: false,
+    showConfirmButton: true,
   });
 
   function handleChange(e: {
@@ -35,39 +43,67 @@ export default function AddForm() {
 
   function handleSubmit(e: { preventDefault: () => void }) {
     if (!input.name) {
-      alert("Please enter a task name");
+      setConfirmation({
+        title: "Task name missing!",
+        message: "Please enter a task name!",
+        showDialog: true,
+        showConfirmButton: false,
+      });
+    } else {
+      console.log("Im inside the else");
+      e.preventDefault();
+      const newTask: Task = {
+        id: input.id,
+        createdDate: input.createdDate,
+        name: input.name,
+        completed: false,
+        completedDate: "",
+        deadline: input.deadline,
+        priority: input.priority,
+        subtasks: subtasks,
+        notes: input.notes,
+      };
+      window.api.addTask(newTask);
+      triggerRerender();
+      setSubtasks([]);
+      setDefaultView();
     }
-    e.preventDefault();
-    const newTask: Task = {
-      id: input.id,
-      createdDate: input.createdDate,
-      name: input.name,
-      completed: false,
-      completedDate: "",
-      deadline: input.deadline,
-      priority: input.priority,
-      subtasks: subtasks,
-      notes: input.notes,
-    };
-
-    window.api.addTask(newTask);
-    triggerRerender();
-    setSubtasks([]);
-    setDefaultView();
   }
 
   function handleCancel() {
     setDefaultView();
   }
 
+  function handleDialogConfirm() {
+    setConfirmation({
+      ...confirmation,
+      showDialog: false,
+    });
+  }
+
+  function handleDialogCancel() {
+    setConfirmation({
+      ...confirmation,
+      showDialog: false,
+    });
+  }
+
   return (
     <>
+      <ConfirmDialog
+        isOpen={confirmation.showDialog}
+        title={confirmation.title}
+        message={confirmation.message}
+        showConfirmButton={confirmation.showConfirmButton}
+        onConfirm={handleDialogConfirm}
+        onCancel={handleDialogCancel}
+      />
+
       <form className="input-form">
-        <p className="taskSize-hint">
-          Remember: Try to make your tasks around <strong>30 minutes</strong>{" "}
-          long. Otherwise, create subtasks manually or using the AI by clicking
-          the <strong>check</strong>-button
-        </p>
+      <p className="hint-tasksize">
+      Remember: <strong>30 minutes</strong> tasks and be precise, quantify
+      tasks. The AI assists you.
+    </p>
         <label htmlFor="title" className="label_title">
           title
         </label>
@@ -135,17 +171,13 @@ export default function AddForm() {
 
         {/* buttons for adding tasks or cancelling */}
         <div className="btn-group">
-          <button
-            type="button"
-            className="btn btn__danger"
-            onClick={handleCancel}
-          >
+          <button type="button" className="btn danger" onClick={handleCancel}>
             cancel
           </button>
           <button
             disabled={addBtnDisabled}
             type="submit"
-            className="btn"
+            className="btn add"
             onClick={handleSubmit}
           >
             add

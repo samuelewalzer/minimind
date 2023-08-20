@@ -1,0 +1,77 @@
+.btn {
+    padding: 0.8rem 1rem 0.7rem;
+    border: 0.2rem solid #4d4d4d;
+    box-shadow: 5px 5px black;
+    cursor: pointer;
+    font-family: "Courier New", Courier, monospace;
+    height: 44px;
+  }
+  .btn:hover {
+    border-color: #000;
+    color: #ffffff;
+    background-color: #000000;
+  }
+  .btn:disabled {
+    border-color: grey;
+    background-color: grey;
+    color: #ffffff;
+    cursor: not-allowed;
+  }
+  .btn:disabled:hover {
+    border-color: grey;
+    background-color: grey;
+    color: #ffffff;
+    cursor: not-allowed;
+  }
+  .btn.filter {
+    border-width: 0px;
+    background-color: transparent;
+    box-shadow: none;
+  }
+  .btn.filter[aria-pressed="true"] {
+    text-decoration: underline;
+    font-weight: bolder;
+  }
+  .btn.filter:hover {
+    color: black;
+    text-decoration: underline;
+  }
+  .btn.danger {
+    background-color: #fff;
+    color: #ca3c3c;
+    border-color: #bd2130;
+  }
+  .btn.danger:hover {
+    color: #ffffff;
+    border-color: #b21f2d;
+    background-color: #b21f2d;
+  }
+  .btn.add {
+    color: #37d76a;
+    background-color: #fff;
+    border-color: #37d76a;
+  }
+  .btn.small {
+    box-shadow: none;
+  }
+  
+  .btn.add:hover {
+    color: #ffffff;
+    border-color: #2dbf58;
+    background-color: #2dbf58;
+  }
+  
+  .btn__primary {
+    color: #000;
+    background-color: #fff;
+  }
+  .btn-group {
+    display: flex;
+    justify-content: space-between;
+  }
+  .btn-group > * {
+    flex: 1 1 49%;
+  }
+  .btn-group > * + * {
+    margin-left: 0.8rem;
+  }

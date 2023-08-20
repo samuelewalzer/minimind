@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import { Task } from "../appStore";
 import { useViewService } from "../viewService";
 import SubtaskContainer from "./SubtaskContainer";
+import { useGlobalRerender } from "../globalRendererContext";
+import '../styles/tasks.css'
+
 
 // Form for viewing details of a task and editing it
 export default function TaskForm(props: { disabled: boolean; }) {
   const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView} = useViewService();
   const [subtasks, setSubtasks] = useState([]);
+  const { triggerRerender } = useGlobalRerender();
 
   const [input, setInput] = useState({
     name: "",
@@ -82,12 +86,14 @@ export default function TaskForm(props: { disabled: boolean; }) {
     };
 
     window.api.editTask(editedTask);
+    triggerRerender();
     setSubtasks([]);
     setDefaultView();
   }
 
   function handleDelete() {
     window.api.deleteTask(currentTask.id);
+    triggerRerender();
     setDefaultView();
   }
 
@@ -104,7 +110,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
       <button type="button" className="btn" onClick={handleEdit}>
         edit
       </button>
-      <button type="button" className="btn btn__danger" onClick={handleDelete}>
+      <button type="button" className="btn danger" onClick={handleDelete}>
         delete
       </button>
     </div>

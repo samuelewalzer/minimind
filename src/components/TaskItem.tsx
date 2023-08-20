@@ -6,9 +6,19 @@ import { CSSProperties, useEffect, useState } from "react";
 import { Task } from "../appStore";
 
 export default function TaskItem(props: { currentTask: Task; }) {
-  const { setDetailsView } = useViewService();
+  const { setDetailsView, currentTask} = useViewService();
   const { triggerRerender } = useGlobalRerender();
+  const date = new Date(props.currentTask.deadline);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0"); 
+  const formattedDate = `${day}.${month}.${year}`;
   
+  // date comparison to check wheter task is overdue
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+  const isOverdue = new Date(props.currentTask.deadline) < currentDate;
+
   function handleClick(e: { stopPropagation: () => void; }) {
     e.stopPropagation();
     setDetailsView(props.currentTask);
@@ -37,20 +47,25 @@ export default function TaskItem(props: { currentTask: Task; }) {
     checkSubtasks();
   });
 
-  const date = new Date(props.currentTask.deadline);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0"); 
-  const formattedDate = `${day}.${month}.${year}`;
   // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
   const completedTaskStyling: CSSProperties = {
     paddingLeft: hasSubtasks ? "13px" : "40px", 
     opacity: props.currentTask.completed ? 0.3 : 1
   }
 
+  const getPriorityIndicator = () => {
+    switch(props.currentTask.priority) {
+      case 'high': return <span className="prio-indicator high">!!!</span>
+      case 'middle': return <span className="prio-indicator middle">!!</span>
+      case 'low': return <span className="prio-indicator low">!</span>
+      default: return null;
+    }
+  }
+
+
   return (
     <div className="stack-small" onClick={handleClick}>
-      <div className="c-cb" style={completedTaskStyling}>
+      <div className={`c-cb ${props.currentTask.id === currentTask.id ? 'selected':''}`} style={completedTaskStyling}>
         {hasSubtasks ? (
           <FontAwesomeIcon
             icon={faBarsStaggered}
@@ -64,15 +79,23 @@ export default function TaskItem(props: { currentTask: Task; }) {
             disabled={!!(props.currentTask.completed && hasSubtasks)}
             defaultChecked={props.currentTask.completed}
             onClick={toggleTaskCompletion}
-          />
-        )}
-        <label className="todo-label">{props.currentTask.name}</label>
-        <label className="todo-label">
+            />
+            )}
+
+
+        <label className="task-label">
+          {props.currentTask.name}
+        </label>
+        
+          {getPriorityIndicator()} 
+        
+        <label className={`${isOverdue ? 'task-overdue' : ''}`}>
           {props.currentTask.deadline === null ||
           props.currentTask.deadline === ""
-            ? ""
-            : formattedDate}
+          ? ""
+          : formattedDate}
         </label>
+
       </div>
     </div>
   );
