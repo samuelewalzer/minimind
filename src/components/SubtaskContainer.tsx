@@ -70,7 +70,7 @@ export default function SubtaskContainer(props: {
 
   const editAddTemplate = (
     <>
-      <form className="input-container" onSubmit={addSubtask}>
+      <div className="input-container" onSubmit={addSubtask}>
           <input
             type="text"
             id="subtask"
@@ -83,7 +83,7 @@ export default function SubtaskContainer(props: {
           <button type="submit" className="btn small" onClick={addSubtask}>
             add
           </button>
-        </form>
+        </div>
     </>
   );
 
@@ -92,7 +92,7 @@ export default function SubtaskContainer(props: {
       <label htmlFor="subtasks" className="label_title">
         subtasks
       </label>
-      <div className="subtask-container">
+      <div className={`subtaskList ${viewMode==='details' ? 'details':'add'}`}>
         {subtaskList.length > 0 ? subtaskList : <p>No subtasks added</p>}
       </div>
       <div>

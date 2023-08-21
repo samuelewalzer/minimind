@@ -15,7 +15,8 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
     setSubtaskName(e.target.value);
   }
 
-  function handleBlur() {
+  function handleBlur(e: { stopPropagation: () => void; }) {
+    e.stopPropagation();
     props.editSubtask(props.subtask.id, subtaskName)
   }
 
@@ -57,13 +58,13 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
           value={subtaskName}
           onChange={handleChange}
           onBlur={handleBlur}
+          onSubmit={handleBlur}
         />
         <button
           type="button"
           className="btn faTrashCan"
           onClick={handleDelete}
         >
-
           <FontAwesomeIcon icon={faTrashCan} className="faTrashCan" />
         </button>
       </div>

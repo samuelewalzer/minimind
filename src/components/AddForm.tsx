@@ -8,7 +8,7 @@ import SubtaskContainer from "./SubtaskContainer";
 import ConfirmDialog from "./ConfirmDialog";
 
 export default function AddForm() {
-  const { setDefaultView } = useViewService();
+  const { setDefaultView, setDetailsView } = useViewService();
   const { triggerRerender } = useGlobalRerender();
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [addBtnDisabled, setAddBtnDisabled] = useState(false);
@@ -66,7 +66,7 @@ export default function AddForm() {
       window.api.addTask(newTask);
       triggerRerender();
       setSubtasks([]);
-      setDefaultView();
+      setDetailsView(newTask);
     }
   }
 
@@ -116,15 +116,15 @@ export default function AddForm() {
           setAddBtnDisabled={setAddBtnDisabled}
         />
         {/* subtask container with subtask items and input field to add new tasks*/}
-      </form>
-      <div>
+
+      <div className="subtaskContainer">
         <SubtaskContainer
           subtasks={subtasks}
           setSubtasks={setSubtasks}
           parentTaskId={input.id}
         />
       </div>
-      <form>
+
         {/* input form containing settings for deadline and priority */}
         <div className="input-group">
           <label htmlFor="deadline" className="label_title">

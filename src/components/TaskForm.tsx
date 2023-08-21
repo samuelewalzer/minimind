@@ -4,12 +4,14 @@ import { useViewService } from "../viewService";
 import SubtaskContainer from "./SubtaskContainer";
 import { useGlobalRerender } from "../globalRendererContext";
 import '../styles/tasks.css'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 
 // Form for viewing details of a task and editing it
 export default function TaskForm(props: { disabled: boolean; }) {
   const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView} = useViewService();
-  const [subtasks, setSubtasks] = useState([]);
+  const [currentSubtasks, setCurrentSubtasks] = useState([]);
   const { triggerRerender } = useGlobalRerender();
 
   const [input, setInput] = useState({
@@ -26,7 +28,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
       name: currentTask.name,
       deadline: currentTask.deadline,
       priority: currentTask.priority,
-      subtasks: subtasks,
+      subtasks: currentSubtasks,
       notes: currentTask.notes,
     });
   }, [currentTask]);
@@ -36,7 +38,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
     async function fetchSubtasks() {
       try {
         const response = await window.api.getSubtasksFromParent(currentTask.id);
-        setSubtasks(response);
+        setCurrentSubtasks(response);
         console.log("Fetching subtasks from database");
       } catch (error) {
         console.log("Error fetching subtasks:", error);
@@ -81,14 +83,14 @@ export default function TaskForm(props: { disabled: boolean; }) {
       completedDate: currentTask.completedDate,
       deadline: input.deadline,
       priority: input.priority,
-      subtasks: subtasks,
+      subtasks: currentSubtasks,
       notes: input.notes,
     };
 
     window.api.editTask(editedTask);
     triggerRerender();
-    setSubtasks([]);
-    setDefaultView();
+    setCurrentSubtasks([]);
+    setDetailsView(editedTask);
   }
 
   function handleDelete() {
@@ -103,6 +105,10 @@ export default function TaskForm(props: { disabled: boolean; }) {
 
   function handleCancel () {
     setDetailsView(currentTask)
+  }
+
+  function handleXmark () {
+    setDefaultView();
   }
 
   const viewTemplate = (
@@ -132,9 +138,13 @@ export default function TaskForm(props: { disabled: boolean; }) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="input-form">
+    <>
+    {props.disabled ? <h2>{input.name}</h2> : <h2>edit task</h2>}
+    <FontAwesomeIcon icon={faXmark} className={"faXmark"} onClick={(handleXmark)}/>
+    <form className="input-form">
+      {!props.disabled && 
       <label htmlFor="title" className="label_title">
-        title
+        name
         <input
           type="text"
           id="name"
@@ -143,41 +153,39 @@ export default function TaskForm(props: { disabled: boolean; }) {
           placeholder={input.name}
           disabled={props.disabled}
           value={input.name}
-          onChange={handleChange}
-        />
-      </label>
+          onChange={handleChange} />
+      </label>}
       <div>
         <div>
-        <SubtaskContainer subtasks={subtasks} setSubtasks={setSubtasks} parentTaskId={currentTask.id}/>
-      </div>
-      <div className="input-group">
-        <label htmlFor="deadline" className="label_title">
-          deadline
-          <input
-            type="date"
-            id="deadline"
-            className="input input__lg"
-            disabled={props.disabled}
-            value={dateString}
-            onChange={handleChange}
-          />
-        </label>
-        <label htmlFor="priority" className="label_title">
-          priority
-          <select
-            name="priority"
-            id="priority"
-            className="input input__lg"
-            disabled={props.disabled}
-            value={input.priority}
-            onChange={handleChange}
-          >
-            <option value="low">low</option>
-            <option value="middle">middle</option>
-            <option value="high">high</option>
-          </select>
-        </label>
-      </div>
+          <SubtaskContainer subtasks={currentSubtasks} setSubtasks={setCurrentSubtasks} parentTaskId={currentTask.id} />
+        </div>
+        <div className="input-group">
+          <label htmlFor="deadline" className="label_title">
+            deadline
+            <input
+              type="date"
+              id="deadline"
+              className="input input__lg"
+              disabled={props.disabled}
+              value={dateString}
+              onChange={handleChange} />
+          </label>
+          <label htmlFor="priority" className="label_title">
+            priority
+            <select
+              name="priority"
+              id="priority"
+              className="input input__lg"
+              disabled={props.disabled}
+              value={input.priority}
+              onChange={handleChange}
+            >
+              <option value="low">low</option>
+              <option value="middle">middle</option>
+              <option value="high">high</option>
+            </select>
+          </label>
+        </div>
       </div>
       <div>
         <label htmlFor="notes" className="label_title">
@@ -190,12 +198,11 @@ export default function TaskForm(props: { disabled: boolean; }) {
             disabled={props.disabled}
             placeholder="None"
             value={input.notes}
-            onChange={handleChange}
-          />
+            onChange={handleChange} />
         </label>
       </div>
       {viewMode === "edit" ? editTemplate : null}
       {viewMode === "details" ? viewTemplate : null}
-    </form>
+    </form></>
   );
 }

@@ -1,4 +1,4 @@
-import { faBarsStaggered } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck } from "@fortawesome/free-solid-svg-icons";
 import { useViewService } from "../viewService";
 import { useGlobalRerender } from "../globalRendererContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,7 +6,7 @@ import { CSSProperties, useEffect, useState } from "react";
 import { Task } from "../appStore";
 
 export default function TaskItem(props: { currentTask: Task; }) {
-  const { setDetailsView, currentTask} = useViewService();
+  const { setDetailsView, currentTask, viewMode} = useViewService();
   const { triggerRerender } = useGlobalRerender();
   const date = new Date(props.currentTask.deadline);
   const year = date.getFullYear();
@@ -49,7 +49,7 @@ export default function TaskItem(props: { currentTask: Task; }) {
 
   // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
   const completedTaskStyling: CSSProperties = {
-    paddingLeft: hasSubtasks ? "13px" : "40px", 
+    paddingLeft: hasSubtasks ? "12px" : "40px", 
     opacity: props.currentTask.completed ? 0.3 : 1
   }
 
@@ -65,12 +65,12 @@ export default function TaskItem(props: { currentTask: Task; }) {
 
   return (
     <div className="stack-small" onClick={handleClick}>
-      <div className={`c-cb ${props.currentTask.id === currentTask.id ? 'selected':''}`} style={completedTaskStyling}>
+      <div className={`c-cb ${props.currentTask.id === currentTask.id && viewMode !== 'default' ? 'selected': ''} ${hasSubtasks && 'has-subtasks'}`} style={completedTaskStyling}>
         {hasSubtasks ? (
           <FontAwesomeIcon
-            icon={faBarsStaggered}
+            icon={faListCheck}
             // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-            style={{ paddingLeft: "0px", paddingRight: "13px" }}
+            style={{ paddingLeft: "0px", paddingRight: "10px" }}
           />
         ) : (
           <input

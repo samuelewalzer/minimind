@@ -2,50 +2,55 @@
   display: grid;
   grid-template-rows: 10% 70% 20%;
   height: 100vh;
+  padding: 0rem 2rem 0rem 2rem;
   /* overflow: hidden; */
   /* background-color: #228bec; */
 }
 .taskContainer {
   flex: 1;
-  height: 70vh;
+  height: 80vh;
   padding: 2rem;
   background-image: url("../assets/tasks_background.png");
-  background-size: 100% 100%;
+  background-size: 95% 100%;
   background-repeat: no-repeat;
   /* background-color: #dfe0f2; */
   z-index: 10;
 }
 .formContainer {
   flex: 1;
-  height: 70vh;
+  height: 80vh;
   padding: 2rem;
   background-image: url("../assets/forms_background.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   /* background-color: #d3f4db; */
   z-index: 10;
+  position: relative;
 }
 .flowerContainer {
+  background-position: fixed;
+  background-position-y: 5vh;
   background-image: url("../assets/flowers_background.svg");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   /* background-color: pink; */
   z-index: 1;
 }
-.hint-tasksize {
-    color: blue;
-    background: #228aec3a;
-    font-size: 1.5rem;
-    border-radius: 1rem;
-    padding: 0.5rem;
-    margin: 0;
-  }
-  .taskSection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    z-index: 10;
-  }
-  .taskList {
-    max-height: 70%;
-    overflow-y: auto;
-  }
+.taskSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  z-index: 10;
+}
+.taskList {
+  max-height: 60%;
+  overflow-y: auto;
+}
+
+.subtaskList.details {
+  max-height: 30vh;
+  overflow-y: auto;
+}
+.subtaskList.add {
+  max-height: 20vh;
+  overflow-y: auto;
+}

@@ -15,7 +15,11 @@ export default function App() {
     } else if (viewMode === "edit") {
       return <TaskForm disabled={false} />;
     } else {
-      return <h3>no task selected</h3>;
+      return (
+        <div className="no-task-select">
+          <h3>no task selected</h3>
+        </div>
+      );
     }
   };
 
@@ -27,7 +31,6 @@ export default function App() {
           <TaskContainer />
         </div>
         <div className="formContainer">
-          <h2>details</h2>
           {appContent()}
         </div>
       </div>

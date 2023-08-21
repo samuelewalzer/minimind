@@ -11,6 +11,7 @@ export default function SmartInput(props: {
   handleChange: ChangeEventHandler<HTMLInputElement>;
   setAddBtnDisabled: (arg0: boolean) => void;
 }) {
+  const [response, setResponse] = useState<SmartResponse>(null);
   const [tempSubtasks, setTempSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmation, setConfirmation] = useState({
@@ -18,45 +19,66 @@ export default function SmartInput(props: {
     message: "",
     showDialog: false,
     showConfirmButton: true,
-  })
+  });
+  const [goodHint, setGoodHint] = useState(false);
+  const [badHint, setBadHint] = useState(false);
 
   function handleClick(e: { preventDefault: () => void }) {
     e.preventDefault();
+    setBadHint(false);
+    setGoodHint(false);
     if (!props.smartInput) {
       setConfirmation({
         title: "No task name!",
         message: "Please enter a task name",
         showDialog: true,
         showConfirmButton: false,
-      })
+      });
     } else if (props.smartInput) {
-      checkForSubtasks();
+      checkForSubtasks("click");
     }
   }
 
-  async function checkForSubtasks() {
-    setIsLoading(true);
-    props.setAddBtnDisabled(true);
+  function handleBlur() {
+    setBadHint(false);
+    setGoodHint(false);
+    if (props.smartInput) {
+      checkForSubtasks("blur");
+    }
+  }
+
+  async function checkForSubtasks(handlerType: string) {
+    if (handlerType === "click") {
+      setIsLoading(true);
+      props.setAddBtnDisabled(true);
+    }
     try {
       const TIMEOUT_DURATIOON = 10000;
       const timeout = new Promise<SmartResponse>((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), TIMEOUT_DURATIOON)
+        setTimeout(
+          () => reject(new Error("Request timed out")),
+          TIMEOUT_DURATIOON
+        )
       );
 
       const response: SmartResponse = await Promise.race([
         window.api.addSmartResponse(props.smartInput),
-        timeout
+        timeout,
       ]);
-
-      console.log(response)
-      handleSubtasksResponse(response);
+      setResponse(response);
+      console.log(response);
+      if (handlerType === "click") handleSubtasksResponse(response);
+      else if (handlerType === "blur" && response.subtasks.length > 0)
+        setBadHint(true);
+      else if (handlerType === "blur" && response.subtasks.length === 0)
+        setGoodHint(true);
     } catch (error) {
       setConfirmation({
         title: "Error!",
-        message: `${error.message}. Please try again!`,
+        message: `The AI has encountered an issue. Please try again!`,
         showDialog: true,
         showConfirmButton: false,
-      })
+      });
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -74,38 +96,40 @@ export default function SmartInput(props: {
       parentTaskId: props.parentTaskId,
       deleted: false,
     }));
-    
+
     setTempSubtasks(newSubtasks);
-    
+
     if (response.subtasks.length === 0) {
       setConfirmation({
         title: "Good task size!",
         message: "The AI doesn’t suggest any subtasks!",
         showDialog: true,
         showConfirmButton: false,
-      })
+      });
     } else if (response.probability < 50) {
-      const subtaskNames = newSubtasks.map(subtask => `• ${subtask.name}`).join("\n");
+      const subtaskNames = newSubtasks
+        .map((subtask) => `• ${subtask.name}`)
+        .join("\n");
       setConfirmation({
         title: "Your task is too big!",
         message: `The AI suggest to split up the task. Here are some suggestions: \n${subtaskNames}`,
         showDialog: true,
         showConfirmButton: false,
-      })
+      });
     } else {
       setConfirmation({
         title: "Your task is big!",
         message: "The AI suggests to add subtasks. Do you want to add them?",
         showDialog: true,
         showConfirmButton: true,
-      })
+      });
     }
   }
 
   function handleDialogConfirm() {
     setConfirmation({
       ...confirmation,
-      showDialog: false
+      showDialog: false,
     });
     props.setSubtasks(tempSubtasks);
     setTempSubtasks([]);
@@ -114,39 +138,70 @@ export default function SmartInput(props: {
   function handleDialogCancel() {
     setConfirmation({
       ...confirmation,
-      showDialog: false
+      showDialog: false,
     });
   }
 
-  return (
-      <><ConfirmDialog
-      isOpen={confirmation.showDialog}
-      title={confirmation.title}
-      message={confirmation.message}
-      showConfirmButton={confirmation.showConfirmButton}
-      onConfirm={handleDialogConfirm}
-      onCancel={handleDialogCancel} />
-      <form onSubmit={handleClick} className={isLoading ? "loading-cursor" : ""}>
-        <div className="input-container">
-        <input
-          type="text"
-          id="name"
-          className="input input__lg"
-          autoComplete="off"
-          placeholder="Type your task title here"
-          value={props.smartInput}
-          onChange={props.handleChange}
-          disabled={isLoading} />
+  async function handleHintConfirm() {
+    try {
+      handleSubtasksResponse(response);
+    } catch (error) {
+      setConfirmation({
+        title: "Error!",
+        message: `The AI has encountered an issue. Please try again!`,
+        showDialog: true,
+        showConfirmButton: false,
+      });
+      console.log(error);
+    }
+  }
 
-        <button
-          type="submit"
-          className="btn small"
-          onClick={handleClick}
-          disabled={isLoading}
+  return (
+    <>
+      <ConfirmDialog
+        isOpen={confirmation.showDialog}
+        title={confirmation.title}
+        message={confirmation.message}
+        showConfirmButton={confirmation.showConfirmButton}
+        onConfirm={handleDialogConfirm}
+        onCancel={handleDialogCancel}
+      />
+      <form
+        onSubmit={handleClick}
+        className={isLoading ? "loading-cursor" : ""}
+      >
+        <div className="input-container">
+          <input
+            type="text"
+            id="name"
+            className="input input__lg"
+            autoComplete="off"
+            placeholder="Type your task title here"
+            value={props.smartInput}
+            onChange={props.handleChange}
+            onBlur={handleBlur}
+            disabled={isLoading}
+          />
+
+          <button
+            type="submit"
+            className="btn small"
+            onClick={handleClick}
+            disabled={isLoading}
           >
-          {isLoading ? "Loading..." : "check"}
-        </button>
-          </div>
-      </form></>
+            {isLoading ? "Loading..." : "check"}
+          </button>
+        </div>
+        <div className={`hint-score ${badHint?'bad':'good'}`}>
+          {goodHint && "Good task size :) "}
+          {badHint && "The AI suggests adding subtasks. Check them out!"}
+          {/* {badHint && (
+            <button className="link" onClick={handleHintConfirm}>
+              Show me the suggestions
+            </button>
+          )} */}
+        </div>
+      </form>
+    </>
   );
 }

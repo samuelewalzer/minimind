@@ -96,7 +96,7 @@ class Database {
             if (error) {
               reject(error);
             } else {
-              console.log(`(db: addTask) Task ${task.name} added (${task.id})`);
+              console.log(`(db: addTask) Task ${task.name} added`);
               resolve(error);
             }
           }
@@ -114,7 +114,7 @@ class Database {
                 reject(error);
               } else {
                 console.log(
-                  `(db: addTask) Subtask ${subtask.name} added (${subtask.id})`
+                  `(db: addTask) Subtask ${subtask.name} added`
                 );
                 resolve(error);
               }
@@ -151,7 +151,7 @@ class Database {
               reject(error);
             } else {
               console.log(
-                `(db: editTask) Task ${updatedTask.name} edited (${updatedTask.id})`
+                `(db: editTask) Task ${updatedTask.name} edited`
               );
               resolve(error);
             }
@@ -183,7 +183,7 @@ class Database {
                   reject(error);
                 } else {
                   console.log(
-                    `(db: editTask) Subtask ${subtask.name} added (${id})`
+                    `(db: editTask) Subtask ${subtask.name} added`
                   );
                   resolve(error);
                 }
@@ -203,7 +203,7 @@ class Database {
                   reject(error);
                 } else {
                   console.log(
-                    `(db: editTask) Subtask ${subtask.name} edited (${JSON.stringify(subtask)})`
+                    `(db: editTask) Subtask ${subtask.name} edited)`
                   );
                   resolve(error);
                 }
@@ -230,7 +230,7 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            console.log(`db deleteTask) task with id ${taskId} deleted`);
+            console.log(`db deleteTask) task deleted`);
             resolve();
           }
         }
@@ -335,7 +335,6 @@ class Database {
   // METHODS FOR SUBTASKS
   async deleteSubtask(subtaskId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      console.log("(db: editTask) trying to delete subtask");
       this.db.run(
         `
               DELETE FROM subtasks WHERE id = ?
@@ -345,7 +344,7 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            console.log(`(db: deleteSubtask) ${subtaskId} deleted`);
+            console.log(`(db: deleteSubtask) subtask deleted`);
             resolve();
           }
         }
@@ -557,7 +556,7 @@ class Database {
           if (error) {
             reject(error);
           } else {
-            console.log(`SmartResponse ${data.name} added (${id})`);
+            console.log(`SmartResponse ${data.name} added`);
             resolve(data);
           }
         }
@@ -584,7 +583,7 @@ class Database {
               if (error) {
                 rejectSubtask(error);
               } else {
-                console.log(`SmartResponse subtask ${subtask.name} added (${subtask.id})`);
+                console.log(`SmartResponse subtask ${subtask.name} added`);
                 resolveSubtask(data);
               }
             }

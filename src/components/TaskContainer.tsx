@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import FilterButton from "./FilterButton";
 import TaskItem from "./TaskItem";
 import { useViewService } from "../viewService";
@@ -42,13 +42,15 @@ export default function TaskContainer() {
       />
     ));
 
-  const filterList = FILTER_NAMES.map((name) => (
+  const filterList = FILTER_NAMES.map((name, index) => (
+    <React.Fragment key={index}>
     <FilterButton
-      key={name}
       name={name}
       isPressed={name === filter}
       setFilter={setFilter}
-    />
+      />
+    {index !== FILTER_NAMES.length -1 && <span>|</span>}
+    </React.Fragment>
   ));
 
   function handleAdd() {
@@ -60,7 +62,7 @@ export default function TaskContainer() {
       <div className="taskContainer">
       <h2>all tasks</h2>
         <>
-          <div className="filters btn-group">{filterList}</div>
+          <div className=""><strong>filter: </strong>{filterList}</div>
           <ul
             role="list"
             className="stack-large taskList"
