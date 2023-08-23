@@ -6,6 +6,7 @@ import ConfirmDialog from "./ConfirmDialog";
 export default function SmartInput(props: {
   smartInput: string;
   subtasks: Subtask[];
+  setCheckCount: (count: number) => void;
   setSubtasks: (subtasks: Subtask[]) => void;
   parentTaskId: string;
   handleChange: ChangeEventHandler<HTMLInputElement>;
@@ -15,6 +16,7 @@ export default function SmartInput(props: {
   const [tempSubtasks, setTempSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkCount, setCheckCount] = useState(0);
+  const [requestId] = useState(`request-${nanoid()}`);
   const [confirmation, setConfirmation] = useState({
     title: "Test",
     message: "",
@@ -44,12 +46,15 @@ export default function SmartInput(props: {
   }
 
   function handleBlur(e: { preventDefault: () => void; }) {
-    e.preventDefault();
-    setBadHint(false);
-    setGoodHint(false);
-    setSuggestionsHint(false);
-    if (props.smartInput) {
-      checkForSubtasks("blur");
+    if(checkCount === 0) {
+      e.preventDefault();
+      setBadHint(false);
+      setGoodHint(false);
+      setSuggestionsHint(false);
+      if (props.smartInput) {
+        checkForSubtasks("blur");
+      }
+      setCheckCount(checkCount + 1);
     }
   }
 
@@ -68,7 +73,7 @@ export default function SmartInput(props: {
       );
 
       const response: SmartResponse = await Promise.race([
-        window.api.addSmartResponse(props.smartInput),
+        window.api.addSmartResponse(props.smartInput, requestId),
         timeout,
       ]);
       setResponse(response);
@@ -100,14 +105,15 @@ export default function SmartInput(props: {
   function handleSuggestionHint(e: { preventDefault: () => void; }) {
     e.preventDefault();
     const newSubtasks = response.subtasks.map((subtask: SmartSubtask) => ({
-      id: `smartsubtask-${nanoid()}`,
-      createdDate: new Date().toISOString(),
+      id: subtask.id,
+      createdDate: subtask.createdDate,
       name: subtask.name,
       completed: false,
       completedDate: "",
-      parentTaskId: props.parentTaskId,
+      parentTaskId: subtask.parentTaskId,
       deleted: false,
     }));
+    props.setCheckCount(checkCount);
     props.setSubtasks(newSubtasks);
   }
 
@@ -127,12 +133,12 @@ export default function SmartInput(props: {
     
   function handleSubtasksClick(response: SmartResponse) {
     const newSubtasks = response.subtasks.map((subtask: SmartSubtask) => ({
-      id: `smartsubtask-${nanoid()}`,
-      createdDate: new Date().toISOString(),
+      id: subtask.id,
+      createdDate: subtask.createdDate,
       name: subtask.name,
       completed: false,
       completedDate: "",
-      parentTaskId: props.parentTaskId,
+      parentTaskId: subtask.parentTaskId,
       deleted: false,
     }));
 
@@ -171,6 +177,7 @@ export default function SmartInput(props: {
       ...confirmation,
       showDialog: false,
     });
+    props.setCheckCount(checkCount);
     props.setSubtasks(tempSubtasks);
     setTempSubtasks([]);
   }
@@ -222,8 +229,7 @@ export default function SmartInput(props: {
           </button>
         </div>
         <div className={`hint-score ${badHint || suggestionsHint ?'bad':'good'}`}>
-          {checkCount > 0 ? (<button>check again!</button>) : 
-          goodHint && "Good task size :) "}
+          {goodHint && "Good task size :) "}
           {suggestionsHint && "The AI suggests adding subtasks!"}
           {suggestionsHint && (
             <button className="link" onClick={handleSuggestionHint}>

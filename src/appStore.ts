@@ -9,6 +9,7 @@ export interface Task {
     subtasks: Subtask[];
     notes: string;
     deleted?: boolean;
+    checkCount: number;
 }
 
 export interface Subtask {
@@ -29,15 +30,19 @@ export const appStore: AppStore = {
     tasks: [],
 };
 
-export interface SmartSubtask {
-    id: string;
-    name: string;
-    probability: number;
-}
-
 export interface SmartResponse {
+    requestId: string,
     id: string;
+    createdDate: string;
     name: string;
     probability: number;
     subtasks: SmartSubtask[];
+}
+
+export interface SmartSubtask {
+    id: string;
+    createdDate: string;
+    name: string;
+    probability: number;
+    parentTaskId: Task['id'],
 }

@@ -12,6 +12,7 @@ export default function AddForm() {
   const { triggerRerender } = useGlobalRerender();
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [addBtnDisabled, setAddBtnDisabled] = useState(false);
+  const [checkCount, setCheckCount] = useState(0);
 
   const [input, setInput] = useState<Task>({
     id: `task-${nanoid()}`,
@@ -61,6 +62,7 @@ export default function AddForm() {
         priority: input.priority,
         subtasks: subtasks,
         notes: input.notes,
+        checkCount: checkCount,
       };
       console.log(newTask);
       window.api.addTask(newTask);
@@ -108,6 +110,7 @@ export default function AddForm() {
       <SmartInput
         smartInput={input.name}
         subtasks={subtasks}
+        setCheckCount={setCheckCount}
         setSubtasks={setSubtasks}
         parentTaskId={input.id}
         handleChange={handleChange}

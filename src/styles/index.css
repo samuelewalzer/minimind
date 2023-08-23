@@ -286,7 +286,7 @@ input {
 }
 .no-flowers {
   position: relative;
-  top: 13vh;
-  bottom: 2;
+  top: 11vh;
+  padding-bottom: 2rem;
   color: green;
 }

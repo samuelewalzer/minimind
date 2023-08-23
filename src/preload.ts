@@ -31,7 +31,7 @@ declare global {
 
       // SmartInput
       // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
-      addSmartResponse: (input: string) => Promise<SmartResponse>;
+      addSmartResponse: (input: string, requestId: string) => Promise<SmartResponse>;
 
       // Show DB
       showDatabase: () => void;
@@ -89,8 +89,8 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   // Bridge for SmartResponse
-  addSmartResponse: async (input: string) => {
-    return await ipcRenderer.invoke("ADD_SMART_RESPONSE", input);
+  addSmartResponse: async (input: string, requestId: string) => {
+    return await ipcRenderer.invoke("ADD_SMART_RESPONSE", input, requestId);
   },
 
   // Bridge for opening database

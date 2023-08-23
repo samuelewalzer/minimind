@@ -51,7 +51,7 @@ export default function FlowerCounter() {
   return (
     <>
       <div className="flowerContainer">
-        <div>{completedTodayCount}</div>
+
         {completedTodayCount === 0 && <h3 className="no-flowers">get started!</h3>}
         {flowerStyles.map((style, index) => (
           <img

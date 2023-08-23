@@ -1,5 +1,5 @@
 import sqlite3 from "sqlite3";
-import { SmartResponse, Subtask, Task } from "./appStore";
+import { SmartResponse, SmartSubtask, Subtask, Task } from "./appStore";
 import { nanoid } from "nanoid";
 import electron from "electron";
 import path from "path";
@@ -34,6 +34,7 @@ class Database {
         subtasks LIST,
         notes TEXT,
         deleted INTEGER DEFAULT 0,
+        checkCount INTEGER DEFAULT 0,
         FOREIGN KEY (subtasks) REFERENCES subtasks(id)
       )
     `);
@@ -55,6 +56,7 @@ class Database {
     // Create the smartResponses table if it doesn't exist
     this.db.run(`
       CREATE TABLE IF NOT EXISTS smartResponseTasks (
+        requestId Text,
         id TEXT PRIMARY KEY,
         createdDate TEXT,
         name TEXT,
@@ -82,7 +84,7 @@ class Database {
       await new Promise((resolve, reject) => {
         this.db.run(
           `
-        INSERT INTO tasks (id, createdDate, completed, name, deadline, priority, subtasks, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO tasks (id, createdDate, completed, name, deadline, priority, subtasks, notes, checkCount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
           [
             task.id,
@@ -93,6 +95,7 @@ class Database {
             task.priority,
             task.subtasks,
             task.notes,
+            task.checkCount,
           ],
           (error) => {
             if (error) {
@@ -530,58 +533,52 @@ class Database {
   }
 
   // METHODS FOR SMARTRESPONSE
-  async addSmartResponse(data: SmartResponse): Promise<SmartResponse> {
+  async addSmartResponse(
+    smartTask: SmartResponse,
+    smartSubtasks: SmartSubtask[]
+  ): Promise<SmartResponse> {
     return new Promise((resolve, reject) => {
-      const id = `smartTask-${nanoid()}`;
-
       // insert the main task into smartResponseTasks table
       this.db.run(
         `
-        INSERT INTO smartResponseTasks (id, createdDate, name, probability, subtasks) VALUES (?, ?, ?, ?, ?)
+        INSERT INTO smartResponseTasks (requestId, id, createdDate, name, probability, subtasks) VALUES (?, ?, ?, ?, ?, ?)
         `,
         [
-          id,
-          new Date().toISOString(),
-          data.name,
-          data.probability,
-          data.subtasks,
+          smartTask.requestId,
+          smartTask.id,
+          smartTask.createdDate,
+          smartTask.name,
+          smartTask.probability,
+          smartSubtasks,
         ],
         (error) => {
           if (error) {
             reject(error);
           } else {
-            resolve(data);
+            resolve(smartTask);
           }
         }
       );
 
-      // prepare subtasks data
-      const names = data.subtasks.map((task) => task.name);
-      const newSubtasks = names.map((name) => ({
-        id: `smartSubtask-${nanoid()}`,
-        createdDate: new Date().toISOString(),
-        name: name,
-        parentTaskId: id,
-      }));
-
       // insert subtasks into smartResponseSubtasks table
-      for (const subtask of newSubtasks) {
+      for (const subtask of smartSubtasks) {
         new Promise((resolveSubtask, rejectSubtask) => {
           this.db.run(
             `
-            INSERT INTO smartResponseSubtasks (id, createdDate, name, parentTaskId) VALUES (?, ?, ?, ?)
+            INSERT INTO smartResponseSubtasks (id, createdDate, name, probability, parentTaskId) VALUES (?, ?, ?, ?, ?)
             `,
             [
               subtask.id,
               subtask.createdDate,
               subtask.name,
+              subtask.probability,
               subtask.parentTaskId,
             ],
             (error) => {
               if (error) {
                 rejectSubtask(error);
               } else {
-                resolveSubtask(data);
+                resolveSubtask(smartSubtasks);
               }
             }
           );

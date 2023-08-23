@@ -112,8 +112,8 @@ ipcMain.handle("GET_COMPLETED_TODAY_COUNT", async () => {
 });
 
 // Handler for SmartInput
-ipcMain.handle("ADD_SMART_RESPONSE", async (event, input) => {
-  return getSmartResponse(input);
+ipcMain.handle("ADD_SMART_RESPONSE", async (event, input, requestId) => {
+  return getSmartResponse(input, requestId);
 });
 
 ipcMain.handle("SHOW_DB", async () => {
