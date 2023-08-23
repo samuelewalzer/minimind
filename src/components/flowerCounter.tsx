@@ -3,7 +3,7 @@ import React, { useState, useEffect, CSSProperties } from "react";
 import { useGlobalRerender } from "../globalRendererContext";
 
 export default function FlowerCounter() {
-  const { rerenderToken } = useGlobalRerender();
+  const { rerenderToggle } = useGlobalRerender();
   const [completedTodayCount, setCompletedTodayCount] = useState(0);
   const [flowerStyles, setFlowerStyles] = useState<CSSProperties[]>([]);
 
@@ -14,7 +14,7 @@ export default function FlowerCounter() {
       setCompletedTodayCount(count);
     }
     fetchCompletedCount();
-  }, [rerenderToken]);
+  }, [rerenderToggle]);
 
   useEffect(() => {
     const newFlowerCount = completedTodayCount - flowerStyles.length;
@@ -42,7 +42,7 @@ export default function FlowerCounter() {
   const getRandomFlowerStyle = (): CSSProperties => {
     return {
       height: `${5 + Math.random() * 5}rem`,
-      bottom: `${0.5 + Math.random() * 3}rem`,
+      bottom: `${5 + Math.random() * 5}rem`,
       left: `${15 + Math.random() * 65}%`,
       position: "absolute",
     };
@@ -51,6 +51,7 @@ export default function FlowerCounter() {
   return (
     <>
       <div className="flowerContainer">
+        <div>{completedTodayCount}</div>
         {completedTodayCount === 0 && <h3 className="no-flowers">get started!</h3>}
         {flowerStyles.map((style, index) => (
           <img

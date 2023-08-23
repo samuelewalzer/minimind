@@ -5,11 +5,10 @@
   width: 100%;
   padding: 0rem 2rem 0rem 2rem;
   overflow: hidden;
-  background-color: #228bec;
 }
 .taskSection {
   display: grid;
-  grid-template-columns: 50% 50%;;
+  grid-template-columns: 50% 50%;
   z-index: 10;
 }
 .taskContainer {
@@ -18,9 +17,8 @@
   width: 100%;
   padding: 2rem;
   background-image: url("../assets/tasks_background.svg");
-  background-size: 95% 100%;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-color: #444dff;
   z-index: 10;
 }
 .formContainer {
@@ -30,17 +28,16 @@
   background-image: url("../assets/forms_background.svg");
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-color: #00e038;
   z-index: 10;
   position: relative;
 }
 .flowerContainer {
-  height: 15vh;
+  height: 20vh;
   background-position: fixed;
   background-image: url("../assets/flowers_background.svg");
-  background-size: 100% 100% !important;
+  background-size: cover;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-color: pink;
   z-index: 1;
   position: relative;
 }

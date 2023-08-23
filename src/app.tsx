@@ -4,10 +4,12 @@ import AddForm from "./components/AddForm";
 import TaskForm from "./components/TaskForm";
 import FlowerCounter from "./components/FlowerCounter";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDatabase } from "@fortawesome/free-solid-svg-icons";
+import { faDatabase, faRotateRight } from "@fortawesome/free-solid-svg-icons";
+import { useGlobalRerender } from "./globalRendererContext";
 
 export default function App() {
   const { viewMode } = useViewService();
+  const { triggerRerender, toggleRerender } = useGlobalRerender();
 
   function showDatabase() {
     window.api.showDatabase();
@@ -29,9 +31,15 @@ export default function App() {
     }
   };
 
+  function handleRerender() {
+    triggerRerender();
+    toggleRerender();
+  }
+
   return (
     <>
     <FontAwesomeIcon icon={faDatabase} className="faDatabase" onClick={showDatabase}/>
+    <FontAwesomeIcon icon={faRotateRight} className="faReload" onClick={handleRerender}/>
     <div className="appContainer">
       <header className="titleHeader">minimind</header>
       <div className="taskSection">

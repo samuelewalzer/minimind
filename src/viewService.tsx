@@ -1,6 +1,7 @@
 import React, { useState, createContext, useContext, useMemo } from "react";
 import { FCC } from "./components/@def";
 import { Task} from "./appStore";
+import { useGlobalRerender } from "./globalRendererContext";
 
 const ViewMode = {
   DEFAULT: 'default',
@@ -30,7 +31,7 @@ export const useViewService = (): ViewService => {
 };
 
 export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
-
+  const { triggerRerender } = useGlobalRerender();
   const [viewMode, setViewMode] = useState(ViewMode.DEFAULT);
   const [currentTask, setCurrentTask] = useState<Task>({
     id: "",
@@ -47,12 +48,14 @@ export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
   const setEditView = (): void => {
     setViewMode(ViewMode.EDIT);
     console.log("EditView set");
+    triggerRerender();
   };
-
+  
   const setDetailsView =  (task: Task): void => {
-      setCurrentTask(task);
-      setViewMode(ViewMode.DETAILS);
-      console.log("DetailsView set");
+    setCurrentTask(task);
+    setViewMode(ViewMode.DETAILS);
+    console.log("DetailsView set");
+    triggerRerender();
   };
 
   const setDefaultView = (): void => {

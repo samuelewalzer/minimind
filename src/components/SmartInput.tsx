@@ -14,6 +14,7 @@ export default function SmartInput(props: {
   const [response, setResponse] = useState<SmartResponse>(null);
   const [tempSubtasks, setTempSubtasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkCount, setCheckCount] = useState(0);
   const [confirmation, setConfirmation] = useState({
     title: "Test",
     message: "",
@@ -22,12 +23,14 @@ export default function SmartInput(props: {
   });
   const [goodHint, setGoodHint] = useState(false);
   const [badHint, setBadHint] = useState(false);
+  const [ suggestionsHint, setSuggestionsHint] = useState(false);
 
   function handleClick(e: { preventDefault: () => void; stopPropagation: () => void; }) {
     e.preventDefault();
     e.stopPropagation();
     setBadHint(false);
     setGoodHint(false);
+    setSuggestionsHint(false);
     if (!props.smartInput) {
       setConfirmation({
         title: "No task name!",
@@ -44,6 +47,7 @@ export default function SmartInput(props: {
     e.preventDefault();
     setBadHint(false);
     setGoodHint(false);
+    setSuggestionsHint(false);
     if (props.smartInput) {
       checkForSubtasks("blur");
     }
@@ -67,16 +71,12 @@ export default function SmartInput(props: {
         window.api.addSmartResponse(props.smartInput),
         timeout,
       ]);
-
       setResponse(response);
       console.log(response);
 
-      if (handlerType === "click") handleSubtasksResponse(response);
-
-      else if (handlerType === "blur") {
-        if (response.subtasks.length > 0) setBadHint(true);
-        else setGoodHint(true);
-      } 
+      if (handlerType === "click") handleSubtasksClick(response);
+      else if ( handlerType === "blur") handleSubtasksBlur(response);
+      
     } catch (error) {
       setConfirmation({
         title: "Error!",
@@ -91,7 +91,13 @@ export default function SmartInput(props: {
     }
   }
 
-  async function handleHintConfirm(e: { preventDefault: () => void; }) {
+  function handleSubtasksBlur(response: SmartResponse) {
+      if (response.subtasks.length === 0) setGoodHint(true);
+      else if (response.probability < 50) setBadHint(true);
+      else setSuggestionsHint(true);
+    } 
+
+  function handleSuggestionHint(e: { preventDefault: () => void; }) {
     e.preventDefault();
     const newSubtasks = response.subtasks.map((subtask: SmartSubtask) => ({
       id: `smartsubtask-${nanoid()}`,
@@ -103,10 +109,23 @@ export default function SmartInput(props: {
       deleted: false,
     }));
     props.setSubtasks(newSubtasks);
-    setTempSubtasks([]);
   }
 
-  function handleSubtasksResponse(response: SmartResponse) {
+  function handleBadHint(e: { preventDefault: () => void; }) {
+    e.preventDefault();
+    const subtaskNames = response.subtasks
+        .map((subtask) => `• ${subtask.name}`)
+        .join("\n");
+      setConfirmation({
+        title: "Your task is too big!",
+        message: `The AI suggest to split up the task. Here are some suggestions: \n${subtaskNames}`,
+        showDialog: true,
+        showConfirmButton: false,
+      });
+      setCheckCount(checkCount + 1);
+    }
+    
+  function handleSubtasksClick(response: SmartResponse) {
     const newSubtasks = response.subtasks.map((subtask: SmartSubtask) => ({
       id: `smartsubtask-${nanoid()}`,
       createdDate: new Date().toISOString(),
@@ -144,6 +163,7 @@ export default function SmartInput(props: {
         showConfirmButton: true,
       });
     }
+    setCheckCount(checkCount + 1);
   }
 
   function handleDialogConfirm() {
@@ -198,17 +218,24 @@ export default function SmartInput(props: {
             onClick={handleClick}
             disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "check"}
+            {isLoading ? "Loading..." : checkCount === 0 ? "check" : "recheck"}
           </button>
         </div>
-        <div className={`hint-score ${badHint?'bad':'good'}`}>
-          {goodHint && "Good task size :) "}
-          {badHint && "The AI suggests adding subtasks!"}
-          {badHint && (
-            <button className="link" onClick={handleHintConfirm}>
-              Show me the suggestions
+        <div className={`hint-score ${badHint || suggestionsHint ?'bad':'good'}`}>
+          {checkCount > 0 ? (<button>check again!</button>) : 
+          goodHint && "Good task size :) "}
+          {suggestionsHint && "The AI suggests adding subtasks!"}
+          {suggestionsHint && (
+            <button className="link" onClick={handleSuggestionHint}>
+            Show me the suggestions
             </button>
-          )}
+            )}
+          {badHint && "Your task is too big, split it up!"}
+          {badHint && (
+            <button className="link" onClick={handleBadHint}>
+            Show me the suggestions
+            </button>
+            )}
         </div>
       </form>
     </>

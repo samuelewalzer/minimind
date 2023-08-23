@@ -13,7 +13,7 @@ export default function TaskForm(props: { disabled: boolean }) {
   const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView } =
     useViewService();
   const [currentSubtasks, setCurrentSubtasks] = useState([]);
-  const { triggerRerender, rerenderToken } = useGlobalRerender();
+  const { toggleRerender, triggerRerender, rerenderToken } = useGlobalRerender();
 
   const [input, setInput] = useState({
     name: "",
@@ -46,7 +46,7 @@ export default function TaskForm(props: { disabled: boolean }) {
       }
     }
     fetchSubtasks();
-  }, [currentTask, viewMode]);
+  }, [currentTask]);
 
   const [dateString, setDateString] = useState("");
   useEffect(() => {
@@ -93,15 +93,15 @@ export default function TaskForm(props: { disabled: boolean }) {
     };
     console.log(editedTask);
     window.api.editTask(editedTask);
-
     setDetailsView(editedTask);
-    setCurrentSubtasks([]);
+    toggleRerender();
+    triggerRerender();
   }
 
   function handleDelete() {
     window.api.deleteTask(currentTask.id);
     setDefaultView();
-    triggerRerender();
+    toggleRerender();
   }
 
   function handleEdit() {

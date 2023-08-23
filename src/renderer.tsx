@@ -36,7 +36,7 @@ import "./styles/index.css";
 import "./styles/buttons.css";
 import "./styles/containers.css";
 
-// SERVICES 
+// SERVICES
 import { ViewServiceProvider } from "./viewService";
 import { GlobalRerenderProvider } from "./globalRendererContext";
 
@@ -45,21 +45,31 @@ const root = createRoot(container);
 root.render(
   <>
     <React.StrictMode>
-      <ViewServiceProvider currentTask={undefined} viewMode={""} setAddView={function (): void {
-        throw new Error("Function not implemented.");
-      } } setEditView={function (): void {
-        throw new Error("Function not implemented.");
-      } } setDetailsView={function (): void {
-        throw new Error("Function not implemented.");
-      } } setDefaultView={function (): void {
-        throw new Error("Function not implemented.");
-      } }>
-        <GlobalRerenderProvider triggerRerender={function (): void {
+      <GlobalRerenderProvider
+        triggerRerender={function (): void {
           throw new Error("Function not implemented.");
-        } } rerenderToken={0}>
+        }}
+        rerenderToken={0}
+      >
+        <ViewServiceProvider
+          currentTask={undefined}
+          viewMode={""}
+          setAddView={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          setEditView={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          setDetailsView={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          setDefaultView={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        >
           <App />
-        </GlobalRerenderProvider>
-      </ViewServiceProvider>
+        </ViewServiceProvider>
+      </GlobalRerenderProvider>
     </React.StrictMode>
   </>
 );

@@ -7,7 +7,7 @@ import { Task } from "../appStore";
 
 export default function TaskItem(props: { currentTask: Task; }) {
   const { setDetailsView, currentTask, viewMode} = useViewService();
-  const { triggerRerender } = useGlobalRerender();
+  const { toggleRerender } = useGlobalRerender();
   const date = new Date(props.currentTask.deadline);
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -30,7 +30,7 @@ export default function TaskItem(props: { currentTask: Task; }) {
       props.currentTask.id,
       props.currentTask.completed
     );
-    triggerRerender();
+    toggleRerender();
   }
 
   const [hasSubtasks, setHasSubtasks] = useState(false);

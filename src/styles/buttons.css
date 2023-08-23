@@ -114,3 +114,15 @@
   transition: all 1s ease-in-out;
   transform: rotate(1turn);
 }
+.faReload {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  color: grey;
+  overflow:hidden;
+}
+.faReload:hover {
+  color: #000;
+  transition: all 1s ease-in-out;
+  transform: rotate(1turn);
+}
