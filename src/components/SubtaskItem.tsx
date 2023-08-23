@@ -8,22 +8,20 @@ import { Subtask } from "../appStore";
 
 export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (subtaskId: string, newName: string) => void; deleteSubtask: (subtaskId: string) => void; }) {
   const { viewMode } = useViewService();
-  const { triggerRerender } = useGlobalRerender();
+  const { toggleRerender } = useGlobalRerender();
   const [subtaskName, setSubtaskName] = useState(props.subtask.name || "");
 
   function handleChange(e: { target: { value: string; }; }) {
     setSubtaskName(e.target.value);
   }
 
-  function handleBlur(e: { stopPropagation: () => void; }) {
-    e.stopPropagation();
-    props.editSubtask(props.subtask.id, subtaskName)
+  function handleEdit() {
+    props.editSubtask(props.subtask.id, subtaskName);
   }
 
   function toggleSubtaskCompletion() {
     window.api.toggleSubtaskCompletion(props.subtask.id);
-    triggerRerender();
-
+    toggleRerender();
   }
 
   function handleDelete() {
@@ -57,8 +55,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
           placeholder={subtaskName}
           value={subtaskName}
           onChange={handleChange}
-          onBlur={handleBlur}
-          onSubmit={handleBlur}
+          onBlur={handleEdit}
         />
         <button
           type="button"

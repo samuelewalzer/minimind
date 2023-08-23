@@ -1,9 +1,11 @@
+/* eslint-disable react-perf/jsx-no-new-object-as-prop */
 import React, { useState, useEffect, CSSProperties } from "react";
 import { useGlobalRerender } from "../globalRendererContext";
 
-export default function flowerCounter() {
-  const [completedTodayCount, setCompletedTodayCount] = useState(0);
+export default function FlowerCounter() {
   const { rerenderToken } = useGlobalRerender();
+  const [completedTodayCount, setCompletedTodayCount] = useState(0);
+  const [flowerStyles, setFlowerStyles] = useState<CSSProperties[]>([]);
 
   useEffect(() => {
     // Fetch the initial count when the component mounts
@@ -13,6 +15,17 @@ export default function flowerCounter() {
     }
     fetchCompletedCount();
   }, [rerenderToken]);
+
+  useEffect(() => {
+    const newFlowerCount = completedTodayCount - flowerStyles.length;
+    if (newFlowerCount > 0) {
+      const newStyles = Array.from({ length: newFlowerCount }).map(getRandomFlowerStyle);
+      setFlowerStyles(prevStyles => [...prevStyles, ...newStyles]);
+    } else if (newFlowerCount < 0) {
+      // Remove flower styles if count has decreased
+      setFlowerStyles(prevStyles => prevStyles.slice(0, completedTodayCount));
+    }
+  }, [completedTodayCount]);
 
   const flowerImages = [
     require("../assets/flower_1.svg"),
@@ -25,34 +38,29 @@ export default function flowerCounter() {
     require("../assets/flower_8.svg"),
   ];
 
-  const numberOfFlowers = completedTodayCount;
-  const spacing = (window.innerWidth-100) / (numberOfFlowers + 1);
-
-  const getRandomOffset = (maxOffset: number) => {
-    // Generate a random value between -maxOffset and maxOffset
-    return (Math.random() - 0.5) * 2 * maxOffset;
-  };
-
-  const getFlower = (index: number) => {
-    const flowerNumber = Math.floor(Math.random() * 6) + 1;
-    const leftPosition = spacing * (index + 1) + getRandomOffset(40); // Adding a random offset of up to ±40 pixels
-    const imageUrl = flowerImages[flowerNumber - 1];
-    // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-    const imageStyle: CSSProperties = {
-      position: "fixed",
-      bottom: `${1+Math.random() * 4}vh`,
-      left: `${leftPosition}px`,
-      height: `${5 + Math.random() * 5}vh`,
+  // Function to generate random flower style
+  const getRandomFlowerStyle = (): CSSProperties => {
+    return {
+      height: `${5 + Math.random() * 5}rem`,
+      bottom: `${0.5 + Math.random() * 3}rem`,
+      left: `${15 + Math.random() * 65}%`,
+      position: "absolute",
     };
-    return <img src={imageUrl} style={imageStyle} alt="Random Flower" />;
   };
 
   return (
-    <div className="flowerContainer">
-      {/* <div>Number of tasks completed today: {completedTodayCount}</div> */}
-      {Array.from({ length: numberOfFlowers }).map((_, index) => (
-        <React.Fragment key={index}>{getFlower(index)}</React.Fragment>
-      ))}
-    </div>
+    <>
+      <div className="flowerContainer">
+        {completedTodayCount === 0 && <h3 className="no-flowers">get started!</h3>}
+        {flowerStyles.map((style, index) => (
+          <img
+          key={index}
+          src={flowerImages[index % flowerImages.length]}
+          alt={`flower-${index}`}
+          style={style}
+          />
+          ))}
+      </div>
+    </>
   );
 }

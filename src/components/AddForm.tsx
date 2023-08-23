@@ -50,7 +50,6 @@ export default function AddForm() {
         showConfirmButton: false,
       });
     } else {
-      console.log("Im inside the else");
       e.preventDefault();
       const newTask: Task = {
         id: input.id,
@@ -63,6 +62,7 @@ export default function AddForm() {
         subtasks: subtasks,
         notes: input.notes,
       };
+      console.log(newTask);
       window.api.addTask(newTask);
       triggerRerender();
       setSubtasks([]);
@@ -100,23 +100,20 @@ export default function AddForm() {
       />
 
       <form className="input-form">
-      <p className="hint-tasksize">
-      Remember: <strong>30 minutes</strong> tasks and be precise, quantify
-      tasks. The AI assists you.
-    </p>
-        <label htmlFor="title" className="label_title">
-          title
-        </label>
-        <SmartInput
-          smartInput={input.name}
-          subtasks={subtasks}
-          setSubtasks={setSubtasks}
-          parentTaskId={input.id}
-          handleChange={handleChange}
-          setAddBtnDisabled={setAddBtnDisabled}
-        />
-        {/* subtask container with subtask items and input field to add new tasks*/}
-
+        <p className="hint-tasksize">
+          Remember: <strong>30 minutes</strong> tasks and be precise, quantify
+          tasks. The AI assists you.
+        </p>
+      </form>
+      <SmartInput
+        smartInput={input.name}
+        subtasks={subtasks}
+        setSubtasks={setSubtasks}
+        parentTaskId={input.id}
+        handleChange={handleChange}
+        setAddBtnDisabled={setAddBtnDisabled}
+      />
+      {/* subtask container with subtask items and input field to add new tasks*/}
       <div className="subtaskContainer">
         <SubtaskContainer
           subtasks={subtasks}
@@ -125,7 +122,8 @@ export default function AddForm() {
         />
       </div>
 
-        {/* input form containing settings for deadline and priority */}
+      {/* input form containing settings for deadline and priority */}
+      <form>
         <div className="input-group">
           <label htmlFor="deadline" className="label_title">
             deadline

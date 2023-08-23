@@ -2,10 +2,16 @@ import TaskContainer from "./components/TaskContainer";
 import { useViewService } from "./viewService";
 import AddForm from "./components/AddForm";
 import TaskForm from "./components/TaskForm";
-import FlowerCounter from "./components/flowerCounter";
+import FlowerCounter from "./components/FlowerCounter";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDatabase } from "@fortawesome/free-solid-svg-icons";
 
 export default function App() {
   const { viewMode } = useViewService();
+
+  function showDatabase() {
+    window.api.showDatabase();
+  }
 
   const appContent = () => {
     if (viewMode === "details") {
@@ -24,6 +30,8 @@ export default function App() {
   };
 
   return (
+    <>
+    <FontAwesomeIcon icon={faDatabase} className="faDatabase" onClick={showDatabase}/>
     <div className="appContainer">
       <header className="titleHeader">minimind</header>
       <div className="taskSection">
@@ -35,6 +43,6 @@ export default function App() {
         </div>
       </div>
       <FlowerCounter />
-    </div>
+    </div></>
   );
 }

@@ -1,51 +1,53 @@
 .appContainer {
-  display: grid;
-  grid-template-rows: 10% 70% 20%;
+  display: flexbox;
+  grid-template-rows: 80% 20%;
   height: 100vh;
+  width: 100%;
   padding: 0rem 2rem 0rem 2rem;
-  /* overflow: hidden; */
-  /* background-color: #228bec; */
+  overflow: hidden;
+  background-color: #228bec;
+}
+.taskSection {
+  display: grid;
+  grid-template-columns: 50% 50%;;
+  z-index: 10;
 }
 .taskContainer {
-  flex: 1;
-  height: 80vh;
+  position: relative;
+  height: 70vh;
+  width: 100%;
   padding: 2rem;
-  background-image: url("../assets/tasks_background.png");
+  background-image: url("../assets/tasks_background.svg");
   background-size: 95% 100%;
   background-repeat: no-repeat;
-  /* background-color: #dfe0f2; */
+  background-color: #444dff;
   z-index: 10;
 }
 .formContainer {
-  flex: 1;
-  height: 80vh;
+  height: 70vh;
+  width: 100%;
   padding: 2rem;
-  background-image: url("../assets/forms_background.png");
+  background-image: url("../assets/forms_background.svg");
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  /* background-color: #d3f4db; */
+  background-color: #00e038;
   z-index: 10;
   position: relative;
 }
 .flowerContainer {
+  height: 15vh;
   background-position: fixed;
-  background-position-y: 5vh;
   background-image: url("../assets/flowers_background.svg");
-  background-size: 100% 100%;
+  background-size: 100% 100% !important;
   background-repeat: no-repeat;
-  /* background-color: pink; */
+  background-color: pink;
   z-index: 1;
-}
-.taskSection {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  z-index: 10;
+  position: relative;
 }
 .taskList {
   max-height: 60%;
   overflow-y: auto;
 }
-
 .subtaskList.details {
   max-height: 30vh;
   overflow-y: auto;

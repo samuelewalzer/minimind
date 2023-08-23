@@ -3,16 +3,17 @@ import { Task } from "../appStore";
 import { useViewService } from "../viewService";
 import SubtaskContainer from "./SubtaskContainer";
 import { useGlobalRerender } from "../globalRendererContext";
-import '../styles/tasks.css'
+import "../styles/tasks.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
-
 // Form for viewing details of a task and editing it
-export default function TaskForm(props: { disabled: boolean; }) {
-  const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView} = useViewService();
+export default function TaskForm(props: { disabled: boolean }) {
+  console.log("TaskForm rendered");
+  const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView } =
+    useViewService();
   const [currentSubtasks, setCurrentSubtasks] = useState([]);
-  const { triggerRerender } = useGlobalRerender();
+  const { triggerRerender, rerenderToken } = useGlobalRerender();
 
   const [input, setInput] = useState({
     name: "",
@@ -45,18 +46,22 @@ export default function TaskForm(props: { disabled: boolean; }) {
       }
     }
     fetchSubtasks();
-  }, [currentTask]);
+  }, [currentTask, viewMode]);
 
   const [dateString, setDateString] = useState("");
   useEffect(() => {
-    const date = new Date(input.deadline);
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    setDateString(`${year}-${month}-${day}`);
+    if (input.deadline) {
+      const date = new Date(input.deadline);
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      setDateString(`${year}-${month}-${day}`);
+    } else {
+      setDateString("");
+    }
   }, [input.deadline]);
 
-  function handleChange(e: { target: { id: string; value: string; }; }) {
+  function handleChange(e: { target: { id: string; value: string } }) {
     if (e.target.id === "deadline") {
       setInput({
         ...input,
@@ -70,7 +75,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
     });
   }
 
-  function handleSubmit(e: { preventDefault: () => void; }) {
+  function handleSubmit(e: { preventDefault: () => void }) {
     if (!input.name) {
       alert("Please enter a task name");
     }
@@ -86,28 +91,28 @@ export default function TaskForm(props: { disabled: boolean; }) {
       subtasks: currentSubtasks,
       notes: input.notes,
     };
-
+    console.log(editedTask);
     window.api.editTask(editedTask);
-    triggerRerender();
-    setCurrentSubtasks([]);
+
     setDetailsView(editedTask);
+    setCurrentSubtasks([]);
   }
 
   function handleDelete() {
     window.api.deleteTask(currentTask.id);
-    triggerRerender();
     setDefaultView();
+    triggerRerender();
   }
 
   function handleEdit() {
     setEditView();
   }
 
-  function handleCancel () {
-    setDetailsView(currentTask)
+  function handleCancel() {
+    setDetailsView(currentTask);
   }
 
-  function handleXmark () {
+  function handleXmark() {
     setDefaultView();
   }
 
@@ -124,11 +129,7 @@ export default function TaskForm(props: { disabled: boolean; }) {
 
   const editTemplate = (
     <div className="btn-group">
-      <button
-        type="button"
-        className="btn btn__danger"
-        onClick={handleCancel}
-      >
+      <button type="button" className="btn btn__danger" onClick={handleCancel}>
         cancel
       </button>
       <button type="submit" className="btn btn__add" onClick={handleSubmit}>
@@ -139,70 +140,83 @@ export default function TaskForm(props: { disabled: boolean; }) {
 
   return (
     <>
-    {props.disabled ? <h2>{input.name}</h2> : <h2>edit task</h2>}
-    <FontAwesomeIcon icon={faXmark} className={"faXmark"} onClick={(handleXmark)}/>
-    <form className="input-form">
-      {!props.disabled && 
-      <label htmlFor="title" className="label_title">
-        name
-        <input
-          type="text"
-          id="name"
-          className="input input__lg"
-          autoComplete="off"
-          placeholder={input.name}
-          disabled={props.disabled}
-          value={input.name}
-          onChange={handleChange} />
-      </label>}
-      <div>
-        <div>
-          <SubtaskContainer subtasks={currentSubtasks} setSubtasks={setCurrentSubtasks} parentTaskId={currentTask.id} />
-        </div>
-        <div className="input-group">
-          <label htmlFor="deadline" className="label_title">
-            deadline
+      {props.disabled ? <h2>{input.name}</h2> : ""}
+      <FontAwesomeIcon
+        icon={faXmark}
+        className={"faXmark"}
+        onClick={handleXmark}
+      />
+      <form className="input-form">
+        {!props.disabled && (
+          <label htmlFor="title" className="label_title">
+            name
             <input
-              type="date"
-              id="deadline"
+              type="text"
+              id="name"
               className="input input__lg"
+              autoComplete="off"
+              placeholder={input.name}
               disabled={props.disabled}
-              value={dateString}
-              onChange={handleChange} />
-          </label>
-          <label htmlFor="priority" className="label_title">
-            priority
-            <select
-              name="priority"
-              id="priority"
-              className="input input__lg"
-              disabled={props.disabled}
-              value={input.priority}
+              value={input.name}
               onChange={handleChange}
-            >
-              <option value="low">low</option>
-              <option value="middle">middle</option>
-              <option value="high">high</option>
-            </select>
+            />
+          </label>
+        )}
+        <div>
+          <div>
+            <SubtaskContainer
+              subtasks={currentSubtasks}
+              setSubtasks={setCurrentSubtasks}
+              parentTaskId={currentTask.id}
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="deadline" className="label_title">
+              deadline
+              <input
+                type="date"
+                id="deadline"
+                className="input input__lg"
+                disabled={props.disabled}
+                value={dateString}
+                onChange={handleChange}
+              />
+            </label>
+            <label htmlFor="priority" className="label_title">
+              priority
+              <select
+                name="priority"
+                id="priority"
+                className="input input__lg"
+                disabled={props.disabled}
+                value={input.priority}
+                onChange={handleChange}
+              >
+                <option value="low">low</option>
+                <option value="middle">middle</option>
+                <option value="high">high</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label htmlFor="notes" className="label_title">
+            notes
+            <input
+              type="text"
+              id="notes"
+              className="input input__lg"
+              autoComplete="off"
+              disabled={props.disabled}
+              placeholder="None"
+              value={input.notes}
+              onChange={handleChange}
+            />
           </label>
         </div>
-      </div>
-      <div>
-        <label htmlFor="notes" className="label_title">
-          notes
-          <input
-            type="text"
-            id="notes"
-            className="input input__lg"
-            autoComplete="off"
-            disabled={props.disabled}
-            placeholder="None"
-            value={input.notes}
-            onChange={handleChange} />
-        </label>
-      </div>
-      {viewMode === "edit" ? editTemplate : null}
-      {viewMode === "details" ? viewTemplate : null}
-    </form></>
+        {viewMode === "edit" ? editTemplate : null}
+        {viewMode === "details" ? viewTemplate : null}
+      </form>
+    </>
   );
 }

@@ -6,6 +6,9 @@ import { FCC } from "./components/@def";
 interface GlobalRerenderContextType {
   triggerRerender: () => void;
   rerenderToken: number;
+
+  toggleRerender: () => void;
+  rerenderToggle: number;
 }
 
 const GlobalRerenderContext = createContext<GlobalRerenderContextType | undefined>(undefined);
@@ -20,15 +23,22 @@ export const useGlobalRerender = () => {
 
 export const GlobalRerenderProvider: FCC<GlobalRerenderContextType> = ({ children }) => {
   const [rerenderToken, setRerenderToken] = useState(0);
-
   const triggerRerender = () => {
     setRerenderToken(prev => prev + 1);
+  };
+  
+  const [rerenderToggle, setRerenderToggle] = useState(0);
+  const toggleRerender = () => {
+    setRerenderToggle(prev => prev + 1);
   };
 
   const providerValue: GlobalRerenderContextType = useMemo(() => ({
     triggerRerender,
-    rerenderToken
-  }), [rerenderToken]);
+    rerenderToken,
+    toggleRerender,
+    rerenderToggle
+    
+  }), [rerenderToken, rerenderToggle]);
 
   return (
     <GlobalRerenderContext.Provider value={providerValue}>

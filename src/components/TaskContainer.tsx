@@ -13,10 +13,11 @@ const FILTER_MAP = {
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
 export default function TaskContainer() {
+  console.log("TaskContainer rendered");
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("active");
-  const { setAddView } = useViewService();
-  const {rerenderToken } = useGlobalRerender();
+  const { setAddView, viewMode } = useViewService();
+  const {rerenderToggle} = useGlobalRerender();
 
   // Fetch tasks from database through api
   useEffect(() => {
@@ -31,10 +32,11 @@ export default function TaskContainer() {
 
     fetchTasks();
     console.log("Fetching tasks from database");
-  }, [rerenderToken]);
+  }, [rerenderToggle, viewMode]);
+  
 
   const taskList = tasks
-    .filter((task) => FILTER_MAP[filter as keyof typeof FILTER_MAP](task))
+    .filter((task) => FILTER_MAP[filter as keyof typeof FILTER_MAP](task) && !task.deleted)
     .map((task) => (
       <TaskItem
         currentTask = {task}

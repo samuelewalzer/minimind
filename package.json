@@ -10,6 +10,7 @@
     "make": "electron-forge make",
     "make macos_intel": "electron-forge make --platform=darwin --arch=x64",
     "make windows": "electron-forge make --platform=windows --arch=x64",
+    "make universal": "electron-forge make -- --arch=universal --platform=darwin",
     "make zip": "electron-forge make --targets=zip",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."

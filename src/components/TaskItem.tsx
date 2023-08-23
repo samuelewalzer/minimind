@@ -1,4 +1,4 @@
-import { faListCheck } from "@fortawesome/free-solid-svg-icons";
+import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import { useViewService } from "../viewService";
 import { useGlobalRerender } from "../globalRendererContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -43,7 +43,6 @@ export default function TaskItem(props: { currentTask: Task; }) {
         console.error("Error checking subtasks");
       }
     }
-
     checkSubtasks();
   });
 
@@ -68,7 +67,7 @@ export default function TaskItem(props: { currentTask: Task; }) {
       <div className={`c-cb ${props.currentTask.id === currentTask.id && viewMode !== 'default' ? 'selected': ''} ${hasSubtasks && 'has-subtasks'}`} style={completedTaskStyling}>
         {hasSubtasks ? (
           <FontAwesomeIcon
-            icon={faListCheck}
+            icon={faFolderOpen}
             // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
             style={{ paddingLeft: "0px", paddingRight: "10px" }}
           />

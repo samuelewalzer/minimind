@@ -32,6 +32,9 @@ declare global {
       // SmartInput
       // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
       addSmartResponse: (input: string) => Promise<SmartResponse>;
+
+      // Show DB
+      showDatabase: () => void;
     };
   }
 }
@@ -77,7 +80,7 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   toggleSubtaskCompletion: async (subtaskId: string) => {
-    return await ipcRenderer.invoke("TOGGLE_SUBTASK_COMPLETION", subtaskId);
+    await ipcRenderer.invoke("TOGGLE_SUBTASK_COMPLETION", subtaskId);
   },
 
   // Bridge for gamification
@@ -89,4 +92,9 @@ contextBridge.exposeInMainWorld("api", {
   addSmartResponse: async (input: string) => {
     return await ipcRenderer.invoke("ADD_SMART_RESPONSE", input);
   },
+
+  // Bridge for opening database
+  showDatabase: async () => {
+    await ipcRenderer.invoke("SHOW_DB");
+  }
 });

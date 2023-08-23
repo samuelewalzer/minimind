@@ -48,6 +48,7 @@ export default function SubtaskContainer(props: {
       completed: false,
       completedDate: "",
       parentTaskId: props.parentTaskId,
+      deleted: false
     };
     props.setSubtasks([...props.subtasks, newSubtask]);
     setSubtaskName("");
@@ -70,7 +71,7 @@ export default function SubtaskContainer(props: {
 
   const editAddTemplate = (
     <>
-      <div className="input-container" onSubmit={addSubtask}>
+      <form className="input-container" onSubmit={addSubtask}>
           <input
             type="text"
             id="subtask"
@@ -80,10 +81,10 @@ export default function SubtaskContainer(props: {
             onChange={handleChange}
             onSubmit={addSubtask} 
           />
-          <button type="submit" className="btn small" onClick={addSubtask}>
+          <button className="btn small" onClick={addSubtask}>
             add
           </button>
-        </div>
+        </form>
     </>
   );
 

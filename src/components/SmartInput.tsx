@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { SmartResponse, Subtask } from "../appStore";
+import { SmartResponse, SmartSubtask, Subtask } from "../appStore";
 import { ChangeEventHandler, useState } from "react";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -23,8 +23,9 @@ export default function SmartInput(props: {
   const [goodHint, setGoodHint] = useState(false);
   const [badHint, setBadHint] = useState(false);
 
-  function handleClick(e: { preventDefault: () => void }) {
+  function handleClick(e: { preventDefault: () => void; stopPropagation: () => void; }) {
     e.preventDefault();
+    e.stopPropagation();
     setBadHint(false);
     setGoodHint(false);
     if (!props.smartInput) {
@@ -39,7 +40,8 @@ export default function SmartInput(props: {
     }
   }
 
-  function handleBlur() {
+  function handleBlur(e: { preventDefault: () => void; }) {
+    e.preventDefault();
     setBadHint(false);
     setGoodHint(false);
     if (props.smartInput) {
@@ -65,13 +67,16 @@ export default function SmartInput(props: {
         window.api.addSmartResponse(props.smartInput),
         timeout,
       ]);
+
       setResponse(response);
       console.log(response);
+
       if (handlerType === "click") handleSubtasksResponse(response);
-      else if (handlerType === "blur" && response.subtasks.length > 0)
-        setBadHint(true);
-      else if (handlerType === "blur" && response.subtasks.length === 0)
-        setGoodHint(true);
+
+      else if (handlerType === "blur") {
+        if (response.subtasks.length > 0) setBadHint(true);
+        else setGoodHint(true);
+      } 
     } catch (error) {
       setConfirmation({
         title: "Error!",
@@ -86,8 +91,23 @@ export default function SmartInput(props: {
     }
   }
 
+  async function handleHintConfirm(e: { preventDefault: () => void; }) {
+    e.preventDefault();
+    const newSubtasks = response.subtasks.map((subtask: SmartSubtask) => ({
+      id: `smartsubtask-${nanoid()}`,
+      createdDate: new Date().toISOString(),
+      name: subtask.name,
+      completed: false,
+      completedDate: "",
+      parentTaskId: props.parentTaskId,
+      deleted: false,
+    }));
+    props.setSubtasks(newSubtasks);
+    setTempSubtasks([]);
+  }
+
   function handleSubtasksResponse(response: SmartResponse) {
-    const newSubtasks = response.subtasks.map((subtask: Subtask) => ({
+    const newSubtasks = response.subtasks.map((subtask: SmartSubtask) => ({
       id: `smartsubtask-${nanoid()}`,
       createdDate: new Date().toISOString(),
       name: subtask.name,
@@ -142,20 +162,6 @@ export default function SmartInput(props: {
     });
   }
 
-  async function handleHintConfirm() {
-    try {
-      handleSubtasksResponse(response);
-    } catch (error) {
-      setConfirmation({
-        title: "Error!",
-        message: `The AI has encountered an issue. Please try again!`,
-        showDialog: true,
-        showConfirmButton: false,
-      });
-      console.log(error);
-    }
-  }
-
   return (
     <>
       <ConfirmDialog
@@ -170,6 +176,9 @@ export default function SmartInput(props: {
         onSubmit={handleClick}
         className={isLoading ? "loading-cursor" : ""}
       >
+        <label htmlFor="title" className="label_title">
+          title
+        </label>
         <div className="input-container">
           <input
             type="text"
@@ -194,12 +203,12 @@ export default function SmartInput(props: {
         </div>
         <div className={`hint-score ${badHint?'bad':'good'}`}>
           {goodHint && "Good task size :) "}
-          {badHint && "The AI suggests adding subtasks. Check them out!"}
-          {/* {badHint && (
+          {badHint && "The AI suggests adding subtasks!"}
+          {badHint && (
             <button className="link" onClick={handleHintConfirm}>
               Show me the suggestions
             </button>
-          )} */}
+          )}
         </div>
       </form>
     </>

@@ -282,4 +282,11 @@ input {
   left: 20%;
   right: 20%;
   top: 40%;
+  color: #898eed;
+}
+.no-flowers {
+  position: relative;
+  top: 13vh;
+  bottom: 2;
+  color: green;
 }

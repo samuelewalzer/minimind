@@ -8,6 +8,7 @@ export interface Task {
     priority: string;
     subtasks: Subtask[];
     notes: string;
+    deleted?: boolean;
 }
 
 export interface Subtask {
@@ -28,13 +29,15 @@ export const appStore: AppStore = {
     tasks: [],
 };
 
-export interface SubtaskSuggestion {
+export interface SmartSubtask {
+    id: string;
     name: string;
+    probability: number;
 }
 
 export interface SmartResponse {
     id: string;
     name: string;
     probability: number;
-    subtasks: SubtaskSuggestion[];
+    subtasks: SmartSubtask[];
 }
