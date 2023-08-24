@@ -20,6 +20,7 @@ const createWindow = (): void => {
     minHeight: 850,
     width: 1400,
     minWidth: 1200,
+    icon: "./assets/icon.png",
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -31,6 +32,8 @@ const createWindow = (): void => {
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 };
+
+// Menu.setApplicationMenu(null)
 
 // Menu.setApplicationMenu(null);
 

@@ -20,7 +20,7 @@ const config: ForgeConfig = {
     new MakerSquirrel({}),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerDeb({options: {icon: "./src/assets/icon.png"}}),
     new MakerDMG({}),
   ],
   plugins: [

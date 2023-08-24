@@ -5,13 +5,16 @@ import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Subtask } from "../appStore";
 
-
-export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (subtaskId: string, newName: string) => void; deleteSubtask: (subtaskId: string) => void; }) {
+export default function SubTaskItem(props: {
+  subtask: Subtask;
+  editSubtask: (subtaskId: string, newName: string) => void;
+  deleteSubtask: (subtaskId: string) => void;
+}) {
   const { viewMode } = useViewService();
   const { toggleRerender } = useGlobalRerender();
   const [subtaskName, setSubtaskName] = useState(props.subtask.name || "");
 
-  function handleChange(e: { target: { value: string; }; }) {
+  function handleChange(e: { target: { value: string } }) {
     setSubtaskName(e.target.value);
   }
 
@@ -25,7 +28,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
   }
 
   function handleDelete() {
-    props.deleteSubtask(props.subtask.id)
+    props.deleteSubtask(props.subtask.id);
   }
 
   //When in details mode, display the subtask items with a checkbox
@@ -37,9 +40,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
         defaultChecked={props.subtask.completed}
         onClick={toggleSubtaskCompletion}
       />
-      <label className="task-label">
-        {props.subtask.name}
-      </label>
+      <label className="task-label">{props.subtask.name}</label>
     </div>
   );
 
@@ -57,11 +58,7 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
           onChange={handleChange}
           onBlur={handleEdit}
         />
-        <button
-          type="button"
-          className="btn faTrashCan"
-          onClick={handleDelete}
-        >
+        <button type="button" className="btn faTrashCan" onClick={handleDelete}>
           <FontAwesomeIcon icon={faTrashCan} className="faTrashCan" />
         </button>
       </div>
@@ -78,4 +75,3 @@ export default function SubTaskItem(props: { subtask: Subtask; editSubtask: (sub
     </div>
   );
 }
-

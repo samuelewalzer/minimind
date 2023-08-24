@@ -35,6 +35,7 @@ import App from "./app";
 import "./styles/index.css";
 import "./styles/buttons.css";
 import "./styles/containers.css";
+import "./styles/tasks.css";
 
 // SERVICES
 import { ViewServiceProvider } from "./viewService";
@@ -50,6 +51,10 @@ root.render(
           throw new Error("Function not implemented.");
         }}
         rerenderToken={0}
+        toggleRerender={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        rerenderToggle={0}
       >
         <ViewServiceProvider
           currentTask={undefined}

@@ -1,14 +1,14 @@
-import React, { useState, createContext, useContext, useMemo } from "react";
+import { useState, createContext, useContext, useMemo } from "react";
 import { FCC } from "./components/@def";
-import { Task} from "./appStore";
+import { Task } from "./appStore";
 import { useGlobalRerender } from "./globalRendererContext";
 
 const ViewMode = {
-  DEFAULT: 'default',
-  DETAILS: 'details',
-  EDIT: 'edit',
-  ADD: 'add',
-}
+  DEFAULT: "default",
+  DETAILS: "details",
+  EDIT: "edit",
+  ADD: "add",
+};
 
 interface ViewService {
   currentTask: Task;
@@ -43,6 +43,7 @@ export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
     priority: "",
     subtasks: [],
     notes: "",
+    checkCount: 0,
   });
 
   const setEditView = (): void => {
@@ -50,8 +51,8 @@ export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
     console.log("EditView set");
     triggerRerender();
   };
-  
-  const setDetailsView =  (task: Task): void => {
+
+  const setDetailsView = (task: Task): void => {
     setCurrentTask(task);
     setViewMode(ViewMode.DETAILS);
     console.log("DetailsView set");
@@ -66,20 +67,23 @@ export const ViewServiceProvider: FCC<ViewService> = ({ children }) => {
   const setAddView = (): void => {
     setViewMode(ViewMode.ADD);
     console.log("AddView set");
-  }
+  };
 
-  const content: ViewService = useMemo(() => ({
-    currentTask,
-    viewMode,
-    setAddView,
-    setEditView,
-    setDetailsView,
-    setDefaultView,
-  }), [currentTask, viewMode]);
+  const content: ViewService = useMemo(
+    () => ({
+      currentTask,
+      viewMode,
+      setAddView,
+      setEditView,
+      setDetailsView,
+      setDefaultView,
+    }),
+    [currentTask, viewMode]
+  );
 
   return (
     <ViewServiceContext.Provider value={content}>
-        {children}
+      {children}
     </ViewServiceContext.Provider>
   );
 };

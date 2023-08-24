@@ -1,11 +1,13 @@
-import TaskContainer from "./components/TaskContainer";
 import { useViewService } from "./viewService";
+import { useGlobalRerender } from "./globalRendererContext";
+
+import TaskContainer from "./components/TaskContainer";
 import AddForm from "./components/AddForm";
 import TaskForm from "./components/TaskForm";
 import FlowerCounter from "./components/FlowerCounter";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDatabase, faRotateRight } from "@fortawesome/free-solid-svg-icons";
-import { useGlobalRerender } from "./globalRendererContext";
 
 export default function App() {
   const { viewMode } = useViewService();
@@ -38,19 +40,26 @@ export default function App() {
 
   return (
     <>
-    <FontAwesomeIcon icon={faDatabase} className="faDatabase" onClick={showDatabase}/>
-    <FontAwesomeIcon icon={faRotateRight} className="faReload" onClick={handleRerender}/>
-    <div className="appContainer">
-      <header className="titleHeader">minimind</header>
-      <div className="taskSection">
-        <div>
-          <TaskContainer />
+      <FontAwesomeIcon
+        icon={faDatabase}
+        className="faDatabase"
+        onClick={showDatabase}
+      />
+      <FontAwesomeIcon
+        icon={faRotateRight}
+        className="faReload"
+        onClick={handleRerender}
+      />
+      <div className="appContainer">
+        <header className="titleHeader">minimind</header>
+        <div className="taskSection">
+          <div>
+            <TaskContainer />
+          </div>
+          <div className="formContainer">{appContent()}</div>
         </div>
-        <div className="formContainer">
-          {appContent()}
-        </div>
+        <FlowerCounter />
       </div>
-      <FlowerCounter />
-    </div></>
+    </>
   );
 }

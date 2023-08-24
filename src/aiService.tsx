@@ -1,6 +1,6 @@
 import { Configuration, OpenAIApi } from "openai";
 import { database as db } from "./database";
-import { SmartResponse, SmartSubtask } from "./appStore";
+import { SmartSubtask } from "./appStore";
 import { nanoid } from "nanoid";
 
 export const getSmartResponse = async (input: string, requestId: string) => {
@@ -29,27 +29,25 @@ export const getSmartResponse = async (input: string, requestId: string) => {
     const data = JSON.parse(response);
     console.log("index.ts) Data: ", data);
     const parentTaskId = `smartTask-${nanoid()}`;
-    
+
     // prepare smart subtask data
-    const smartSubtasks = data.subtasks.map(
-      (subtask: SmartSubtask) => ({
-        id: `smartSubtask-${nanoid()}`,
-        createdDate: new Date().toISOString(),
-        name: subtask.name,
-        probability: subtask.probability,
-        parentTaskId: parentTaskId,
-      })
-    );
+    const smartSubtasks = data.subtasks.map((subtask: SmartSubtask) => ({
+      id: `smartSubtask-${nanoid()}`,
+      createdDate: new Date().toISOString(),
+      name: subtask.name,
+      probability: subtask.probability,
+      parentTaskId: parentTaskId,
+    }));
 
     //  prepare smart task data
-    const smartTask = ({
+    const smartTask = {
       requestId: requestId,
       id: parentTaskId,
       createdDate: new Date().toISOString(),
       name: data.name,
       probability: data.probability,
       subtasks: smartSubtasks,
-    });
+    };
 
     // add the smartresponse to the database
     db.addSmartResponse(smartTask, smartSubtasks);

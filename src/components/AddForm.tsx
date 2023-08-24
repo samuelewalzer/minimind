@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { nanoid } from "nanoid";
-import { Subtask, Task } from "../appStore";
 import { useViewService } from "../viewService";
-import { useGlobalRerender } from "../globalRendererContext";
+import { nanoid } from "nanoid";
+
 import SmartInput from "./SmartInput";
 import SubtaskContainer from "./SubtaskContainer";
 import ConfirmDialog from "./ConfirmDialog";
 
+import { Subtask, Task } from "../appStore";
+
+// Form for adding a new task
 export default function AddForm() {
   const { setDefaultView, setDetailsView } = useViewService();
-  const { triggerRerender } = useGlobalRerender();
-  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [addBtnDisabled, setAddBtnDisabled] = useState(false);
   const [checkCount, setCheckCount] = useState(0);
-
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [input, setInput] = useState<Task>({
     id: `task-${nanoid()}`,
     createdDate: new Date().toISOString(),
@@ -24,13 +24,7 @@ export default function AddForm() {
     priority: "low",
     subtasks: subtasks,
     notes: "",
-  });
-
-  const [confirmation, setConfirmation] = useState({
-    title: "Test",
-    message: "",
-    showDialog: false,
-    showConfirmButton: true,
+    checkCount: 0,
   });
 
   function handleChange(e: {
@@ -42,6 +36,7 @@ export default function AddForm() {
     });
   }
 
+  // add task to the db
   function handleSubmit(e: { preventDefault: () => void }) {
     if (!input.name) {
       setConfirmation({
@@ -64,13 +59,19 @@ export default function AddForm() {
         notes: input.notes,
         checkCount: checkCount,
       };
-      console.log(newTask);
+
       window.api.addTask(newTask);
-      triggerRerender();
-      setSubtasks([]);
       setDetailsView(newTask);
     }
   }
+
+  // Handlers for ConfirmDialog
+  const [confirmation, setConfirmation] = useState({
+    title: "Test",
+    message: "",
+    showDialog: false,
+    showConfirmButton: true,
+  });
 
   function handleCancel() {
     setDefaultView();
@@ -103,8 +104,10 @@ export default function AddForm() {
 
       <form className="input-form">
         <p className="hint-tasksize">
-          Remember: <strong>30 minutes</strong> tasks and be precise, quantify
-          tasks. The AI assists you.
+          Goal: Provide a <strong>specific</strong> and{" "}
+          <strong>measurable</strong> task of approximately{" "}
+          <strong>30 minutes</strong> tasks. Be precise for better AI
+          suggestions!
         </p>
       </form>
       <SmartInput

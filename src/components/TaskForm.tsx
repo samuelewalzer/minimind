@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
-import { Task } from "../appStore";
 import { useViewService } from "../viewService";
-import SubtaskContainer from "./SubtaskContainer";
 import { useGlobalRerender } from "../globalRendererContext";
-import "../styles/tasks.css";
+
+import SubtaskContainer from "./SubtaskContainer";
+
+import { Task } from "../appStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 // Form for viewing details of a task and editing it
 export default function TaskForm(props: { disabled: boolean }) {
-  console.log("TaskForm rendered");
   const { viewMode, currentTask, setEditView, setDefaultView, setDetailsView } =
     useViewService();
+
+  const { toggleRerender, triggerRerender } = useGlobalRerender();
   const [currentSubtasks, setCurrentSubtasks] = useState([]);
-  const { toggleRerender, triggerRerender, rerenderToken } = useGlobalRerender();
+  const [dateString, setDateString] = useState("");
 
   const [input, setInput] = useState({
     name: "",
@@ -32,7 +34,7 @@ export default function TaskForm(props: { disabled: boolean }) {
       subtasks: currentSubtasks,
       notes: currentTask.notes,
     });
-  }, [currentTask]);
+  }, [currentTask, currentSubtasks]);
 
   // every time we set a new currenttask, fetch the subtasks of given task
   useEffect(() => {
@@ -46,9 +48,8 @@ export default function TaskForm(props: { disabled: boolean }) {
       }
     }
     fetchSubtasks();
-  }, [currentTask]);
+  }, [currentTask, viewMode]);
 
-  const [dateString, setDateString] = useState("");
   useEffect(() => {
     if (input.deadline) {
       const date = new Date(input.deadline);
@@ -90,18 +91,16 @@ export default function TaskForm(props: { disabled: boolean }) {
       priority: input.priority,
       subtasks: currentSubtasks,
       notes: input.notes,
+      checkCount: currentTask.checkCount,
     };
-    console.log(editedTask);
     window.api.editTask(editedTask);
+    console.log("Edited task:", editedTask);
     setDetailsView(editedTask);
-    toggleRerender();
-    triggerRerender();
   }
 
   function handleDelete() {
     window.api.deleteTask(currentTask.id);
     setDefaultView();
-    toggleRerender();
   }
 
   function handleEdit() {

@@ -19,8 +19,7 @@ declare global {
       toggleTaskCompletion: (taskId: string, completedStatus: boolean) => void;
       deleteTask: (taskId: string) => void;
       editTask: (task: Task) => void;
-      taskHasSubtasks: (taskId: string) => Promise<boolean> 
-
+      taskHasSubtasks: (taskId: string) => Promise<boolean>;
 
       // Subtasks
       toggleSubtaskCompletion: (taskId: string) => void;
@@ -31,7 +30,10 @@ declare global {
 
       // SmartInput
       // This method adds all the smart responses to the database in order to analyze them and returns the current smart response to display in the UI
-      addSmartResponse: (input: string, requestId: string) => Promise<SmartResponse>;
+      addSmartResponse: (
+        input: string,
+        requestId: string
+      ) => Promise<SmartResponse>;
 
       // Show DB
       showDatabase: () => void;
@@ -65,7 +67,6 @@ contextBridge.exposeInMainWorld("api", {
     return await ipcRenderer.invoke("TASK_HAS_SUBTASKS", taskId);
   },
 
-
   // Bridges for Subtasks
   addSubtask: async (subtask: Subtask) => {
     await ipcRenderer.invoke("ADD_SUBTASK", subtask);
@@ -96,5 +97,5 @@ contextBridge.exposeInMainWorld("api", {
   // Bridge for opening database
   showDatabase: async () => {
     await ipcRenderer.invoke("SHOW_DB");
-  }
+  },
 });

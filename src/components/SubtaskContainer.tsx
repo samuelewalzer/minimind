@@ -3,6 +3,7 @@ import { SetStateAction, useState } from "react";
 import SubtaskItem from "./SubtaskItem";
 import { useViewService } from "../viewService";
 import { Subtask } from "../appStore";
+import ConfirmDialog from "./ConfirmDialog";
 
 // This component receives a list of subtasks with properties id, name, completed and parentId
 // handles their view:
@@ -16,6 +17,12 @@ export default function SubtaskContainer(props: {
 }) {
   const { viewMode } = useViewService();
   const [subtaskName, setSubtaskName] = useState("");
+  const [confirmation, setConfirmation] = useState({
+    title: "Test",
+    message: "",
+    showDialog: false,
+    showConfirmButton: true,
+  });
 
   const subtaskList = props.subtasks
     .filter((subtask) => !subtask.deleted && subtask.name)
@@ -37,7 +44,13 @@ export default function SubtaskContainer(props: {
     preventDefault: () => void;
   }) {
     if (!subtaskName) {
-      alert("Please enter a subtask name");
+      // alert("Please enter a subtask name");
+      setConfirmation({
+        title: "No subtask name!",
+        message: "Please enter a subtask name",
+        showDialog: true,
+        showConfirmButton: false,
+      });
     }
     e.preventDefault();
     e.stopPropagation();
@@ -48,7 +61,7 @@ export default function SubtaskContainer(props: {
       completed: false,
       completedDate: "",
       parentTaskId: props.parentTaskId,
-      deleted: false
+      deleted: false,
     };
     props.setSubtasks([...props.subtasks, newSubtask]);
     setSubtaskName("");
@@ -72,28 +85,52 @@ export default function SubtaskContainer(props: {
   const editAddTemplate = (
     <>
       <form className="input-container" onSubmit={addSubtask}>
-          <input
-            type="text"
-            id="subtask"
-            placeholder="add subtask"
-            className="input input__lg"
-            value={subtaskName}
-            onChange={handleChange}
-            onSubmit={addSubtask} 
-          />
-          <button className="btn small" onClick={addSubtask}>
-            add
-          </button>
-        </form>
+        <input
+          type="text"
+          id="subtask"
+          placeholder="add subtask"
+          className="input input__lg"
+          value={subtaskName}
+          onChange={handleChange}
+          onSubmit={addSubtask}
+        />
+        <button className="btn small" onClick={addSubtask}>
+          add
+        </button>
+      </form>
     </>
   );
 
+  function handleDialogConfirm() {
+    setConfirmation({
+      ...confirmation,
+      showDialog: false,
+    });
+  }
+
+  function handleDialogCancel() {
+    setConfirmation({
+      ...confirmation,
+      showDialog: false,
+    });
+  }
+
   return (
     <>
+      <ConfirmDialog
+        isOpen={confirmation.showDialog}
+        title={confirmation.title}
+        message={confirmation.message}
+        showConfirmButton={confirmation.showConfirmButton}
+        onConfirm={handleDialogConfirm}
+        onCancel={handleDialogCancel}
+      />
       <label htmlFor="subtasks" className="label_title">
         subtasks
       </label>
-      <div className={`subtaskList ${viewMode==='details' ? 'details':'add'}`}>
+      <div
+        className={`subtaskList ${viewMode === "details" ? "details" : "add"}`}
+      >
         {subtaskList.length > 0 ? subtaskList : <p>No subtasks added</p>}
       </div>
       <div>
